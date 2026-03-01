@@ -4,11 +4,12 @@ import pino, {
   type TransportSingleOptions,
 } from 'pino';
 
+import { env } from '@/config/env';
+
 type LoggerTransport = TransportSingleOptions | TransportMultiOptions | TransportPipelineOptions;
 
 function getLoggerTransport(): LoggerTransport | undefined {
-  // TODO: update to have a separate transport during production
-  // if (!env.isDev) return undefined;
+  if (!env.isDev) return undefined;
 
   return {
     target: 'pino-pretty',
@@ -27,6 +28,6 @@ function getLoggerTransport(): LoggerTransport | undefined {
 
 export type Logger = pino.Logger;
 export const logger = pino({
-  level: 'debug', // TODO: update to use env variable instead
+  level: env.LOG_LEVEL,
   transport: getLoggerTransport(),
 });
