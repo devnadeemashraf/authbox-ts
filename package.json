@@ -10,6 +10,7 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "type-check": "tsc --noEmit",
+    "test": "jest --passWithNoTests",
     "prepare": "husky"
   },
   "lint-staged": {
