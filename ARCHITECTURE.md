@@ -1,186 +1,155 @@
 # Pragmatic Domain-Driven Architecture (PDDA)
 
-## Core Edition: Authentication & Identity Boilerplate
-
 ## 1. Architectural Philosophy & Core Tenets
 
-Think of your backend as a high-end restaurant.
+Think of your backend as a high-end restaurant kitchen.
 
 - **Express.js (The Waiter):** Only takes orders (Requests) and delivers food (Responses). It does not cook.
-- **Services (The Chefs):** Contain all the business logic (Recipes). They don't know or care how the order arrived (HTTP, WebSockets, or a CLI).
-- **Repositories (The Pantry Managers):** Fetch ingredients (Data) from the fridge (Database). The Chef doesn't need to know how the fridge is organized, just how to ask for tomatoes.
-- **`tsyringe` (The Kitchen Manager):** Dependency Injection. Automatically hands the Chef the exact Pantry Manager they need, meaning you don't manually pass dependencies around.
+- **Services (The Chefs):** Contain all the business logic (Recipes). They are completely isolated from the HTTP layer.
+- **Repositories (The Pantry Managers):** Fetch ingredients (Data) from the fridge (Database). The Chef doesn't need to know how the fridge is organized.
+- **`tsyringe` (The Kitchen Manager):** Automatically hands the Chef the exact Pantry Manager they need via Dependency Injection.
+- **The Shared Kernel (The Master Recipe Book):** A neutral zone where common definitions (like what a "User" is) live, so different stations (Modules) can share an understanding without stepping into each other's workspaces.
 
 **Core Rules:**
 
 - **Strict Unidirectional Data Flow:** Route -> Validator -> Controller -> Service -> Repository -> Database.
 - **Framework Agnosticism:** Business logic never touches `req`, `res`, or `next`.
-- **Database Agnosticism:** Services interact with Repositories using standard TypeScript interfaces. You can swap Prisma for Raw SQL without changing a single line of business logic.
+- **No Horizontal Dependencies:** Modules (e.g., Auth and Users) do not import from each other. They communicate via interfaces defined in the Shared Kernel.
 
 ---
 
 ## 2. Folder Organization
 
-Organized by **Domain** (Feature), not by Technical Role. This prevents "folder hopping" and scales beautifully.
+Organized by **Domain** (Feature), with internal grouping by **Architectural Role**.
 
 ```text
 src/
-├── config/                 # Static configs & Env validations (Zod schemas for process.env)
-├── core/                   # Shared cross-domain mechanisms
-│   ├── di/                 # tsyringe container bootstrap
-│   ├── errors/             # AppError, UnauthenticatedError (Custom error classes)
-│   ├── middlewares/        # Express logic: authGuard, globalErrorHandler
-│   └── security/           # Hashing (Argon2), JWT signing/verification wrappers
-├── infrastructure/         # External Systems (Singletons)
-│   ├── database/           # DB Connection pool / ORM client
-│   ├── cache/              # Redis client (for session blocklists & rate limits)
-│   └── mailer/             # Nodemailer / SendGrid client
-├── modules/                # Domain Modules
-│   ├── auth/               # Core Auth Domain
-│   │   ├── auth.routes.ts          # Express Router wiring
-│   │   ├── auth.controller.ts      # HTTP Adapter (Req/Res handling)
-│   │   ├── auth.service.ts         # Email/Pass logic, login, register
-│   │   ├── oauth.service.ts        # Google/GitHub provider logic
-│   │   ├── email-verify.service.ts # OTP token generation & validation
-│   │   └── auth.schemas.ts         # Zod validation schemas
-│   └── users/              # User Management Domain
-│       ├── user.repository.ts      # Data access (findByEmail, create)
-│       └── user.types.ts           # Domain interfaces (User entity)
-├── workers/                # BullMQ background job processors (e.g., SendWelcomeEmail)
-├── app.ts                  # Express application assembly
-└── server.ts               # Entry point: cluster setup, port binding, reflect-metadata
+├── config/                     # Static configs & Env validations (Zod schemas)
+├── core/                       # The "Shared Kernel" & Cross-domain mechanisms
+│   ├── di/                     # tsyringe container bootstrap
+│   ├── errors/                 # AppError, UnauthenticatedError
+│   ├── interfaces/             # THE SHARED KERNEL (Domain Entities & Types)
+│   │   ├── user.types.ts       # Shared User definition
+│   │   └── session.types.ts    # Shared Session definition
+│   ├── middlewares/            # Express logic: authGuard, globalErrorHandler
+│   └── security/               # Hashing (Argon2), JWT signing wrappers
+├── infrastructure/             # External Systems (Singletons)
+│   ├── database/               # DB Connection pool / ORM client
+│   ├── cache/                  # Redis client
+│   └── mailer/                 # Nodemailer / SendGrid client
+├── modules/                    # Domain Modules
+│   ├── auth/                   # Core Auth Domain
+│   │   ├── controllers/
+│   │   │   └── auth.controller.ts
+│   │   ├── routes/
+│   │   │   └── auth.routes.ts
+│   │   ├── services/
+│   │   │   ├── auth.service.ts
+│   │   │   ├── oauth.service.ts
+│   │   │   └── email-verify.service.ts
+│   │   └── schemas/
+│   │       └── auth.schemas.ts
+│   └── users/                  # User Management Domain
+│       ├── controllers/
+│       │   └── user.controller.ts
+│       ├── routes/
+│       │   └── user.routes.ts
+│       ├── services/
+│       │   └── user.service.ts
+│       └── repositories/
+│           └── user.repository.ts
+├── workers/                    # Background job processors (e.g., SendWelcomeEmail)
+├── app.ts                      # Express application assembly
+└── server.ts                   # Entry point: cluster setup, reflect-metadata
 
 ```
 
 ---
 
-## 3. Layer Breakdown & Software Patterns
+## 3. The Shared Kernel & Layer Breakdown
 
-### 3.1. Infrastructure Layer (Singleton Pattern)
+### 3.1. The Shared Kernel (`core/interfaces/`)
 
-Manages heavy, persistent connections to external systems.
+To prevent the `Auth` module from importing directly from the `Users` module (which creates messy, tightly coupled code), we elevate shared definitions here.
 
-- **Rule:** Zero business logic. Strictly connection handling and generic wrappers.
-- **Pattern:** `@singleton()` via `tsyringe` ensures only one Redis or DB connection pool exists application-wide.
+- **Rule:** Only TypeScript types, interfaces, and generic enums live here. No business logic.
+- **Why it works:** `AuthService` and `UserService` both import `User` from `core/interfaces/user.types.ts`. They share an understanding of the data without depending on each other's implementation details.
 
-### 3.2. Controllers (Adapter Pattern)
+### 3.2. Controllers (The HTTP Adapter)
 
 Extracts data from Express and formats the response.
 
-- **Rule:** Max 50 lines. No business logic.
+- **Rule:** Max 50 lines. Zero business logic. Must reside in `modules/<feature>/controllers/`.
 - **Pseudocode:**
 
 ```typescript
+import { injectable, inject } from 'tsyringe';
+import { Request, Response, NextFunction } from 'express';
+import { AuthService } from '../services/auth.service';
+
 @injectable()
 export class AuthController {
   constructor(@inject(AuthService) private authService: AuthService) {}
 
-  // Bouncer pattern: Extract, Call Service, Respond, Catch Errors
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.authService.registerWithEmail(req.body);
       res.status(201).json({ success: true, data: result });
     } catch (error) {
-      next(error); // Passes to global error middleware
+      next(error);
     }
   };
 }
 ```
 
-### 3.3. Services (Core Domain Logic)
+### 3.3. Services (Core Business Logic)
 
-The brain of the operation. Orchestrates Repositories and Infrastructure.
+The brain of the operation.
 
-- **Rule:** Completely unaware of Express or HTTP.
+- **Rule:** Completely unaware of Express or HTTP. Resides in `modules/<feature>/services/`.
 - **Pseudocode:**
 
 ```typescript
+import { injectable, inject } from 'tsyringe';
+import { User } from '../../../core/interfaces/user.types'; // Shared Kernel
+import { UserRepository } from '../../users/repositories/user.repository'; // Cross-module DI is allowed
+
 @injectable()
 export class AuthService {
-  constructor(
-    @inject(UserRepository) private userRepo: UserRepository,
-    @inject(EmailVerifyService) private emailVerifier: EmailVerifyService,
-    @inject(Hasher) private hasher: Hasher,
-  ) {}
+  constructor(@inject(UserRepository) private userRepo: UserRepository) {}
 
-  async registerWithEmail(data: RegisterDTO) {
-    // 1. Early Return / Guard
-    if (await this.userRepo.findByEmail(data.email)) {
-      throw new ConflictError("Email already in use");
-    }
-
-    // 2. Core Logic
-    const hashedPassword = await this.hasher.hash(data.password);
-    const user = await this.userRepo.create({
-      ...data,
-      password: hashedPassword,
-    });
-
-    // 3. Side Effects (Background processing)
-    await this.emailVerifier.generateAndSend(user);
-
-    return { id: user.id, email: user.email };
+  async validateLogin(email: string): Promise<User> {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) throw new NotFoundError('User not found');
+    return user;
   }
 }
 ```
 
-### 3.4. Repositories (Data Access Layer)
+### 3.4. Repositories (Data Access)
 
 Translates domain needs into database queries. Hides the ORM.
 
-- **Rule:** Methods are named after data operations, not business processes (e.g., `updateVerificationStatus`, NOT `verifyUser`).
-- **Pseudocode:**
-
-```typescript
-@injectable()
-export class UserRepository {
-  constructor(@inject("Database") private db: DbClient) {}
-
-  async findByEmail(email: string): Promise<User | null> {
-    return this.db.users.findUnique({ where: { email } });
-  }
-}
-```
+- **Rule:** Methods are named purely after data operations. Resides in `modules/<feature>/repositories/`.
 
 ---
 
-## 4. Engineering Standards & Developer Experience (DX)
+## 4. Engineering Standards & DX Rules
 
-1. **Strict Line Limits:**
+1. **Line Limits:** Core logic functions max out at **20 lines**. Files max out at **200-300 lines**.
+2. **Early Returns:** Validate negative conditions first. Avoid nested `if/else` hell.
+3. **Bitmask Authorization:** Roles are checked using bitwise operators (`(user.permissions & Permissions.EDIT) !== 0`) in Express middleware, taking $O(1)$ time and requiring zero database joins.
+4. **Error Handling:** Never throw a generic `Error`. Throw custom classes (e.g., `ConflictError`) so the global middleware maps them to proper HTTP status codes.
+5. **Performance:**
 
-- **Functions:** Max 20 lines of core logic. If it exceeds this, abstract it into a private helper method. This forces the Single Responsibility Principle (SRP).
-- **Files:** Max 200-300 lines.
-
-2. **The Bouncer Pattern (Early Returns):**
-
-- Check for negative conditions first and throw/return immediately. Keep the "happy path" un-indented at the bottom of the function.
-
-3. **Dependency Injection (`tsyringe`):**
-
-- Always import `import 'reflect-metadata';` at the absolute top of `server.ts`.
-- Avoid tight coupling (`new Service()`). Let the container resolve the dependency graph. This makes unit testing trivial (you just inject mock repositories).
-
-4. **Error Handling:**
-
-- Never `throw new Error("Something went wrong")`.
-- Always throw custom domain errors (`throw new NotFoundError("User not found")`). A central Express error middleware maps these specific classes to standard HTTP status codes (404, 400, 401).
+- **Node Clustering:** `server.ts` forks workers across all CPU cores.
+- **Redis Caching:** Valid active `Session` IDs and dynamic `Tier` limits are cached in Redis to prevent hitting PostgreSQL on every authenticated request.
+- **Background Jobs:** Non-blocking tasks (sending emails) are handled by a separate queue worker process (e.g., BullMQ).
 
 ---
 
-## 5. Scalability & Production Readiness
+## 5. LLM Context Instructions
 
-- **Graceful Shutdown:** When deploying or crashing, `server.ts` intercepts `SIGTERM`. It stops accepting new requests, waits for active requests to finish, cleanly closes Database/Redis connections, and exits. This prevents corrupted data and dropped user requests.
-- **Clustering (High Throughput):** Because Node is single-threaded, `server.ts` uses the native `cluster` module to fork the process across all available CPU cores, load-balancing incoming traffic natively.
-- **Background Workers:** The API must remain snappy (sub-200ms). Tasks like sending the "Verify Email" magic link or hashing heavy passwords are offloaded to Redis-backed queues (e.g., BullMQ). A separate worker process handles them asynchronously.
-- **Authentication Strategy:**
-- **Access Tokens (JWT):** Short-lived (15m), sent in JSON response, stored in memory on the frontend.
-- **Refresh Tokens:** Long-lived (7d), sent as `HttpOnly`, `Secure`, `SameSite=Strict` cookies. Completely immune to XSS attacks.
-- **Stateless yet Revocable:** On logout, the Access Token ID (jti) is placed in a Redis blocklist until it naturally expires.
+_(Paste this to any LLM when generating code for this project)_
 
----
-
-## 6. LLM Context Instructions
-
-_(Paste this system prompt to any LLM when generating code for this project)_
-
-> "Act as a Senior Backend Engineer. Adhere strictly to the 'Pragmatic Domain-Driven Architecture (PDDA)'. Use Node.js, Express, TypeScript, and `tsyringe` for Dependency Injection. Use `@injectable()` and constructor injection. Controllers handle ONLY HTTP semantics and must be under 50 lines. Services contain ALL business logic and are framework-agnostic. Repositories handle ALL database access. Enforce strict early returns, max 20 lines per core function, and throw custom domain errors. Do not use generic Error classes."
+> "Act as a Senior Backend Engineer. Adhere strictly to the 'Pragmatic Domain-Driven Architecture (PDDA)'. Use Node.js, Express, TypeScript, and `tsyringe`. Use `@injectable()` and constructor injection. Files are grouped by role within modules (e.g., `modules/auth/services/`). Shared interfaces live in `core/interfaces/` (Shared Kernel). Controllers handle ONLY HTTP semantics (<50 lines). Services contain ALL business logic. Repositories handle database access. Enforce strict early returns, max 20 lines per core function, and throw custom domain errors."
