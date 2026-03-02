@@ -1,22 +1,13 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env from project root;
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 import { bool, cleanEnv, num, port, str, url } from 'envalid';
 
-/**
- * Environment variables validated at startup via envalid.
- *
- * CRUCIAL (required - app will fail fast if missing):
- * - JWT_SECRET, FRONTEND_URL, BACKEND_URL
- * - POSTGRES_PASSWORD (and other DB vars)
- * - REDIS_HOST (Redis is typically required for sessions)
- *
- * OPTIONAL (have defaults - app starts without them):
- * - Google OAuth: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET (empty = provider disabled)
- * - Redis: REDIS_PASSWORD (empty = no auth, common for local dev)
- * - MinIO: MINIO_ROOT_USER, MINIO_ROOT_PASSWORD (only if using object storage)
- */
 export const env = cleanEnv(process.env, {
-  // ─── Application ─────────────────────────────────────────────────────────
+  // Application
   NODE_ENV: str({
     choices: ['development', 'testing', 'production'],
     default: 'development',
@@ -34,13 +25,13 @@ export const env = cleanEnv(process.env, {
     desc: 'When true, primary process spawns job workers alongside HTTP',
   }),
 
-  // ─── Logging ─────────────────────────────────────────────────────────────
+  // Logging
   LOG_LEVEL: str({
     choices: ['fatal', 'error', 'warn', 'info', 'debug', 'trace'],
     default: 'warn',
   }),
 
-  // ─── Security / JWT ───────────────────────────────────────────────────────
+  // Security / JWT
   /** REQUIRED - Generate with: openssl rand -base64 32 */
   JWT_SECRET: str({
     desc: 'JWT signing secret (REQUIRED)',
@@ -74,13 +65,13 @@ export const env = cleanEnv(process.env, {
     desc: 'Backend public URL',
   }),
 
-  // ─── Google OAuth ────────────────────────────────────────────────────────
+  // Google OAuth
   /** Empty = Google OAuth disabled */
   GOOGLE_CLIENT_ID: str({ default: '' }),
   /** Empty = Google OAuth disabled */
   GOOGLE_CLIENT_SECRET: str({ default: '' }),
 
-  // ─── PostgreSQL ──────────────────────────────────────────────────────────
+  // PostgreSQL
   /** Use Docker service name if running via docker-compose */
   POSTGRES_HOST: str({ default: 'localhost' }),
   POSTGRES_PORT: port({ default: 5432 }),
@@ -100,18 +91,18 @@ export const env = cleanEnv(process.env, {
   DATABASE_POOL_MIN: num({ default: 2 }),
   DATABASE_POOL_MAX: num({ default: 20 }),
 
-  // ─── Redis ───────────────────────────────────────────────────────────────
+  // Redis
   /** Use Docker service name if running via docker-compose */
   REDIS_HOST: str({ default: 'localhost' }),
   REDIS_PORT: port({ default: 6379 }),
   /** Empty = no auth (common for local Redis) */
   REDIS_PASSWORD: str({ default: '' }),
 
-  // ─── MinIO Object Store ──────────────────────────────────────────────────
+  // MinIO Object Store
   MINIO_ROOT_USER: str({ default: 'authbox_admin' }),
   MINIO_ROOT_PASSWORD: str({ default: 'authbox_password' }),
 
-  // ─── Hardening ───────────────────────────────────────────────────────────
+  // Hardening
   /** Set to true if behind a reverse proxy (NGINX, Traefik, etc.) */
   TRUST_PROXY: bool({ default: false }),
 

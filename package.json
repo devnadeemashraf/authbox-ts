@@ -11,7 +11,12 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "type-check": "tsc --noEmit",
     "test": "jest --passWithNoTests",
-    "prepare": "pnpm type-check && husky"
+    "prepare": "pnpm type-check && husky",
+    "db:migrate": "knex --knexfile src/config/knexfile.ts migrate:latest",
+    "db:migrate:make": "knex --knexfile src/config/knexfile.ts migrate:make -x ts",
+    "db:migrate:rollback": "knex --knexfile src/config/knexfile.ts migrate:rollback",
+    "db:seed": "knex --knexfile src/config/knexfile.ts seed:run",
+    "db:seed:make": "knex --knexfile src/config/knexfile.ts seed:make -x ts"
   },
   "lint-staged": {
     "src/**/*.ts": [
@@ -36,6 +41,7 @@
     "prettier": "^3.8.1",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
@@ -44,6 +50,8 @@
   "dependencies": {
     "dotenv": "^17.3.1",
     "envalid": "^8.1.1",
+    "knex": "^3.1.0",
+    "pg": "^8.19.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0"
   }
