@@ -1,8 +1,11 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load .env from project root;
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Load .env from project root (quiet: true suppresses "injecting env" console output)
+dotenv.config({
+  path: path.resolve(__dirname, '../../.env'),
+  quiet: true,
+});
 
 import { bool, cleanEnv, num, port, str, url } from 'envalid';
 

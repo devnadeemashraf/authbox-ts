@@ -3,7 +3,8 @@ import type { Server } from 'http';
 import { createApp } from '@/app';
 import { env } from '@/config/env';
 import { logger } from '@/core/logger';
-// TODO: import { registerOnShutdown } from '@/shutdown' when implementing DB/Redis cleanup
+import { connectDatabase, disconnectDatabase } from '@/infrastructure/database/db.client';
+import { registerOnShutdown } from '@/shutdown';
 
 export async function bootstrapInfrastructure(): Promise<void> {
   // --- tsyringe DI container setup
@@ -11,8 +12,8 @@ export async function bootstrapInfrastructure(): Promise<void> {
   // TODO: Import core/di/container or similar
 
   // --- Database connection pool (Knex / pg)
-  // TODO: const db = await connectDatabase();
-  // TODO: registerOnShutdown(async () => db.destroy());
+  await connectDatabase();
+  registerOnShutdown(disconnectDatabase);
 
   // --- Redis client (for sessions, cache)
   // TODO: const redis = await connectRedis();
