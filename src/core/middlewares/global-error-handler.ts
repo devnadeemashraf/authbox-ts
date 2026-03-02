@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 import { isAppError, sanitizeForClient } from '@/core/errors/utils';
 import { logger } from '@/core/logger';
+import { error } from '@/core/response';
 
 /**
  * Global error handler. Must be registered last (after all routes).
@@ -36,9 +37,6 @@ export function globalErrorHandler(
   const payload = sanitizeForClient(err, requestId);
 
   if (!res.headersSent) {
-    res.status(payload.statusCode).json({
-      success: false,
-      error: payload,
-    });
+    error(res, payload);
   }
 }
