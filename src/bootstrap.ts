@@ -2,18 +2,18 @@ import type { Server } from 'http';
 
 import { createApp } from '@/app';
 import { env } from '@/config/env';
+import { bootstrapDI } from '@/core/di/container';
 import { logger } from '@/core/logger';
 import { connectDatabase, disconnectDatabase } from '@/infrastructure/database/db.client';
 import { registerOnShutdown } from '@/shutdown';
 
 export async function bootstrapInfrastructure(): Promise<void> {
-  // --- tsyringe DI container setup
-  // TODO: bootstrapDI() - register all injectables (repositories, services, etc.)
-  // TODO: Import core/di/container or similar
-
   // --- Database connection pool (Knex / pg)
   await connectDatabase();
   registerOnShutdown(disconnectDatabase);
+
+  // --- tsyringe DI container
+  bootstrapDI();
 
   // --- Redis client (for sessions, cache)
   // TODO: const redis = await connectRedis();

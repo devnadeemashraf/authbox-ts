@@ -1,3 +1,5 @@
+import cluster from 'node:cluster';
+
 import pino, {
   type TransportMultiOptions,
   type TransportPipelineOptions,
@@ -29,5 +31,8 @@ function getLoggerTransport(): LoggerTransport | undefined {
 export type Logger = pino.Logger;
 export const logger = pino({
   level: env.LOG_LEVEL,
+  base: {
+    worker: cluster.isPrimary ? 'primary' : (cluster.worker?.id ?? 'unknown'),
+  },
   transport: getLoggerTransport(),
 });

@@ -1,8 +1,8 @@
+import 'reflect-metadata';
+
 import cluster from 'node:cluster';
 import os from 'node:os';
 
-// Required for tsyringe decorators (@injectable, @inject) - must be first
-// TODO: Uncomment when tsyringe is added: import 'reflect-metadata';
 import { bootstrap } from '@/bootstrap';
 import { env } from '@/config/env';
 import { logger } from '@/core/logger';
