@@ -1,7 +1,7 @@
 import { Tier } from '@core/interfaces/tier.types';
 
 export interface User {
-  id: bigint;
+  id: string; // UUID
   email: string;
   username: string | null;
   passwordHash: string | null; // Nullable for users who only use OAuth
