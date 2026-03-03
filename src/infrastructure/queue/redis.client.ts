@@ -77,3 +77,34 @@ export async function getResendCooldownTtl(userId: string): Promise<number> {
   const redis = getQueueConnection();
   return redis.ttl(`${COOLDOWN_PREFIX}${userId}`);
 }
+
+/** Key prefix for password-reset cooldown (by email). */
+const PWD_RESET_COOLDOWN_PREFIX = 'pwd_reset:cooldown:';
+
+export async function setPasswordResetCooldown(email: string, ttlSeconds: number): Promise<void> {
+  const redis = getQueueConnection();
+  await redis.setex(`${PWD_RESET_COOLDOWN_PREFIX}${email.toLowerCase()}`, ttlSeconds, '1');
+}
+
+export async function getPasswordResetCooldownTtl(email: string): Promise<number> {
+  const redis = getQueueConnection();
+  return redis.ttl(`${PWD_RESET_COOLDOWN_PREFIX}${email.toLowerCase()}`);
+}
+
+/** Short-lived reset token (single-use). TTL in seconds. */
+const RESET_TOKEN_PREFIX = 'pwd_reset:token:';
+export const RESET_TOKEN_TTL_SECONDS = 600; // 10 minutes
+
+export async function setResetToken(token: string, userId: string): Promise<void> {
+  const redis = getQueueConnection();
+  await redis.setex(`${RESET_TOKEN_PREFIX}${token}`, RESET_TOKEN_TTL_SECONDS, userId);
+}
+
+export async function consumeResetToken(token: string): Promise<string | null> {
+  const redis = getQueueConnection();
+  const key = `${RESET_TOKEN_PREFIX}${token}`;
+  const userId = await redis.get(key);
+  if (!userId) return null;
+  await redis.del(key); // Single-use: delete on consume
+  return userId;
+}

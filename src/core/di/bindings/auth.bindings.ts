@@ -14,9 +14,12 @@ import { OAuthService } from '@/modules/auth/services/oauth.service';
 import { QueueWelcomeEmailService } from '@/modules/auth/services/queue-welcome-email.service';
 import { RefreshWithTokenService } from '@/modules/auth/services/refresh-with-token.service';
 import { RegisterWithEmailService } from '@/modules/auth/services/register-with-email.service';
+import { ResetPasswordService } from '@/modules/auth/services/reset-password.service';
+import { SendPasswordResetOtpService } from '@/modules/auth/services/send-password-reset-otp.service';
 import { SendVerificationOtpService } from '@/modules/auth/services/send-verification-otp.service';
 import { TierEnforcementService } from '@/modules/auth/services/tier-enforcement.service';
 import { VerifyEmailOtpService } from '@/modules/auth/services/verify-email-otp.service';
+import { VerifyPasswordResetOtpService } from '@/modules/auth/services/verify-password-reset-otp.service';
 
 /**
  * Registers auth-module dependencies with the container.
@@ -50,4 +53,11 @@ export function registerAuthBindings(container: DependencyContainer): void {
   container.register(Tokens.Auth.QueueWelcomeEmailService, {
     useClass: QueueWelcomeEmailService,
   });
+  container.register(Tokens.Auth.SendPasswordResetOtpService, {
+    useClass: SendPasswordResetOtpService,
+  });
+  container.register(Tokens.Auth.VerifyPasswordResetOtpService, {
+    useClass: VerifyPasswordResetOtpService,
+  });
+  container.register(Tokens.Auth.ResetPasswordService, { useClass: ResetPasswordService });
 }

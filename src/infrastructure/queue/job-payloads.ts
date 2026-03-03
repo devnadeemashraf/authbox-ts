@@ -12,3 +12,9 @@ export interface WelcomeEmailJobPayload {
   email: string;
   name?: string;
 }
+
+export interface PasswordResetJobPayload {
+  userId: string;
+  email: string;
+  otp: string;
+}

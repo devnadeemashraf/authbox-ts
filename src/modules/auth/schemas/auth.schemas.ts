@@ -47,3 +47,33 @@ export const verifyOtpSchema = z.object({
 });
 
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+
+/** Shared password policy: min 12 chars, 1 upper, 1 lower, 1 number, 1 special */
+const passwordSchema = z
+  .string()
+  .min(12, 'Password must be at least 12 characters')
+  .max(128, 'Password must be at most 128 characters')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number')
+  .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
+
+export const forgotPasswordSchema = z.object({
+  email: z.email('Invalid email format'),
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+export const verifyPasswordResetOtpSchema = z.object({
+  email: z.email('Invalid email format'),
+  otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must be numeric'),
+});
+
+export type VerifyPasswordResetOtpInput = z.infer<typeof verifyPasswordResetOtpSchema>;
+
+export const resetPasswordSchema = z.object({
+  resetToken: z.string().min(1, 'Reset token is required'),
+  newPassword: passwordSchema,
+});
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

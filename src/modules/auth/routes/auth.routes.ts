@@ -18,4 +18,8 @@ authRouter.get('/oauth/:provider', authController.oauthInitiate);
 authRouter.post('/email/send-verification', authGuard, authController.sendVerificationOtp);
 authRouter.post('/email/verify', authGuard, authController.verifyEmailOtp);
 
+authRouter.post('/forgot-password', authController.forgotPassword);
+authRouter.post('/verify-reset-otp', authController.verifyPasswordResetOtp);
+authRouter.post('/reset-password', authController.resetPassword);
+
 export { authRouter };

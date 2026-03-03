@@ -16,4 +16,7 @@ export const AuthTokens = {
   SendVerificationOtpService: Symbol('authbox.auth.SendVerificationOtpService'),
   VerifyEmailOtpService: Symbol('authbox.auth.VerifyEmailOtpService'),
   QueueWelcomeEmailService: Symbol('authbox.auth.QueueWelcomeEmailService'),
+  SendPasswordResetOtpService: Symbol('authbox.auth.SendPasswordResetOtpService'),
+  VerifyPasswordResetOtpService: Symbol('authbox.auth.VerifyPasswordResetOtpService'),
+  ResetPasswordService: Symbol('authbox.auth.ResetPasswordService'),
 } as const;

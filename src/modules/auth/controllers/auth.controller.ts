@@ -2,21 +2,27 @@ import type { Request, Response } from 'express';
 import { inject, injectable } from 'tsyringe';
 
 import {
+  forgotPasswordSchema,
   loginSchema,
   logoutSchema,
   oauthCallbackSchema,
   oauthInitiateSchema,
   refreshSchema,
   registerSchema,
+  resetPasswordSchema,
   verifyOtpSchema,
+  verifyPasswordResetOtpSchema,
 } from '../schemas/auth.schemas';
 import type { LoginWithEmailService } from '../services/login-with-email.service';
 import type { LogoutWithRefreshService } from '../services/logout-with-refresh.service';
 import type { OAuthService } from '../services/oauth.service';
 import type { RefreshWithTokenService } from '../services/refresh-with-token.service';
 import type { RegisterWithEmailService } from '../services/register-with-email.service';
+import type { ResetPasswordService } from '../services/reset-password.service';
+import type { SendPasswordResetOtpService } from '../services/send-password-reset-otp.service';
 import type { SendVerificationOtpService } from '../services/send-verification-otp.service';
 import type { VerifyEmailOtpService } from '../services/verify-email-otp.service';
+import type { VerifyPasswordResetOtpService } from '../services/verify-password-reset-otp.service';
 
 import { env } from '@/config/env';
 import { BaseController } from '@/core/base';
@@ -42,6 +48,12 @@ export class AuthController extends BaseController {
     private readonly sendVerificationOtpService: SendVerificationOtpService,
     @inject(Tokens.Auth.VerifyEmailOtpService)
     private readonly verifyEmailOtpService: VerifyEmailOtpService,
+    @inject(Tokens.Auth.SendPasswordResetOtpService)
+    private readonly sendPasswordResetOtpService: SendPasswordResetOtpService,
+    @inject(Tokens.Auth.VerifyPasswordResetOtpService)
+    private readonly verifyPasswordResetOtpService: VerifyPasswordResetOtpService,
+    @inject(Tokens.Auth.ResetPasswordService)
+    private readonly resetPasswordService: ResetPasswordService,
   ) {
     super();
   }
@@ -119,5 +131,23 @@ export class AuthController extends BaseController {
     const input = validateWithZod(verifyOtpSchema, req.body);
     await this.verifyEmailOtpService.execute(userId, input.otp);
     ok(res, { verified: true });
+  });
+
+  forgotPassword = this.asyncHandler(async (req: Request, res: Response) => {
+    const input = validateWithZod(forgotPasswordSchema, req.body);
+    const result = await this.sendPasswordResetOtpService.execute(input.email);
+    ok(res, result);
+  });
+
+  verifyPasswordResetOtp = this.asyncHandler(async (req: Request, res: Response) => {
+    const input = validateWithZod(verifyPasswordResetOtpSchema, req.body);
+    const result = await this.verifyPasswordResetOtpService.execute(input.email, input.otp);
+    ok(res, result);
+  });
+
+  resetPassword = this.asyncHandler(async (req: Request, res: Response) => {
+    const input = validateWithZod(resetPasswordSchema, req.body);
+    await this.resetPasswordService.execute(input.resetToken, input.newPassword);
+    noContent(res);
   });
 }

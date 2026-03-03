@@ -5,6 +5,7 @@
 export const QUEUE_NAMES = {
   EMAIL_VERIFICATION: 'email-verification',
   WELCOME_EMAIL: 'welcome-email',
+  PASSWORD_RESET: 'password-reset',
 } as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES];
