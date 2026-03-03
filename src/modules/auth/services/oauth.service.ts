@@ -6,7 +6,6 @@ import { inject, injectable } from 'tsyringe';
 import type { OAuthProviderRegistry } from '../providers/oauth-provider.registry';
 import type { SessionRepository } from '../repositories/session.repository';
 import type { SocialProviderRepository } from '../repositories/social-provider.repository';
-import { createOAuthState, verifyOAuthState } from './oauth-state';
 import type { TierEnforcementService } from './tier-enforcement.service';
 
 import { env } from '@/config/env';
@@ -15,6 +14,7 @@ import { Tokens } from '@/core/di/tokens';
 import { BadRequestError, UnauthorizedError } from '@/core/errors/client-errors';
 import type { User } from '@/core/interfaces/user.types';
 import { signAccessToken, signRefreshToken } from '@/core/security/jwt';
+import { createOAuthState, verifyOAuthState } from '@/core/security/oauth-state';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 export interface OAuthInitiateResult {
