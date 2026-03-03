@@ -24,16 +24,6 @@ export async function up(knex: Knex): Promise<void> {
      );
     `,
   );
-
-  // Seed foundational information crucial for system to operate
-  await knex.raw(
-    `
-     INSERT INTO tiers (name, features)
-     VALUES
-      ('free', '{"auth":{"maxSessions":1}}'::jsonb),
-      ('premium', '{"auth":{"maxSessions":3}}'::jsonb);
-    `,
-  );
 }
 
 export async function down(knex: Knex): Promise<void> {

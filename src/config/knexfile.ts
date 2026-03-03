@@ -16,6 +16,7 @@ const commonConfig: Knex.Config = {
   },
   seeds: {
     directory: seedsDir,
+    extension: 'ts',
   },
   pool: {
     afterCreate: (conn: any, done: any) => {
