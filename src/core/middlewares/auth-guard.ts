@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { ForbiddenError, UnauthorizedError } from '@/core/errors/client-errors';
+import { UnauthorizedError } from '@/core/errors/client-errors';
 import type { AccessTokenPayload } from '@/core/security/jwt';
 import { verifyToken } from '@/core/security/jwt';
 
@@ -34,47 +34,37 @@ function extractBearerToken(req: Request): string | null {
 }
 
 /**
- * authGuard middleware: verifies JWT, attaches req.user, optionally checks permission.
+ * authGuard middleware: verifies JWT and attaches req.user.
  *
- * - Without permission: any valid access token passes.
- * - With permission: requires (user.permissions & permission) !== 0; else 403 Forbidden.
- *
- * @param permission - Optional bitmask from Permissions; enforces O(1) permission check.
+ * Single responsibility: authentication only (identity verification).
+ * For authorization (permission checks), use requirePermission after authGuard.
  */
-export function authGuard(permission?: number) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
-    const token = extractBearerToken(req);
-    if (!token) {
-      next(new UnauthorizedError({ message: 'Authentication required' }));
-      return;
-    }
+export function authGuard(req: Request, _res: Response, next: NextFunction): void {
+  const token = extractBearerToken(req);
+  if (!token) {
+    next(new UnauthorizedError({ message: 'Authentication required' }));
+    return;
+  }
 
-    let payload: AccessTokenPayload;
-    try {
-      payload = verifyToken<AccessTokenPayload>(token);
-    } catch {
-      next(new UnauthorizedError({ message: 'Invalid or expired token' }));
-      return;
-    }
+  let payload: AccessTokenPayload;
+  try {
+    payload = verifyToken<AccessTokenPayload>(token);
+  } catch {
+    next(new UnauthorizedError({ message: 'Invalid or expired token' }));
+    return;
+  }
 
-    if (payload.type !== 'access') {
-      next(new UnauthorizedError({ message: 'Invalid token type' }));
-      return;
-    }
+  if (payload.type !== 'access') {
+    next(new UnauthorizedError({ message: 'Invalid token type' }));
+    return;
+  }
 
-    const user: AuthUser = {
-      id: payload.sub,
-      email: payload.email,
-      permissions: payload.permissions,
-      tierId: payload.tierId,
-    };
-    (req as AuthenticatedRequest).user = user;
-
-    if (permission !== undefined && (user.permissions & permission) === 0) {
-      next(new ForbiddenError({ message: 'Insufficient permissions' }));
-      return;
-    }
-
-    next();
+  const user: AuthUser = {
+    id: payload.sub,
+    email: payload.email,
+    permissions: payload.permissions,
+    tierId: payload.tierId,
   };
+  (req as AuthenticatedRequest).user = user;
+  next();
 }
