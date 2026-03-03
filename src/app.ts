@@ -2,6 +2,8 @@ import express, { type Express } from 'express';
 
 import { globalErrorHandler, requestIdMiddleware } from '@/core/middlewares';
 import { notFound, ok } from '@/core/response';
+import { authRouter } from '@/modules/auth/routes/auth.routes';
+import { userRouter } from '@/modules/users/routes/user.routes';
 
 export function createApp(): Express {
   const app = express();
@@ -24,14 +26,14 @@ export function createApp(): Express {
 
   // --- tsyringe / DI container initialization
   // Must run before any controllers or routes that use @inject()
-  // TODO: bootstrapDI() from core/di/ - register repositories, services, controllers
+  // bootstrapDI() is called in bootstrapInfrastructure() before createApp()
 
   // --- Health check (for load balancers / k8s probes)
   app.get('/health', (_req, res) => ok(res, { status: 'ok' }));
 
-  // --- Domain routes (auth, users, etc.)
-  // TODO: app.use('/api/auth', authRouter);
-  // TODO: app.use('/api/users', userRouter);
+  // --- API v1 routes
+  app.use('/api/v1/auth', authRouter);
+  app.use('/api/v1/users', userRouter);
 
   // --- 404 handler (use error format for consistency)
   app.use((_req, res) => notFound(res, res.locals?.requestId));
