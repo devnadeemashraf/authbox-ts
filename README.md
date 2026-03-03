@@ -209,28 +209,15 @@ Run PostgreSQL and Redis separately (or use docker-compose).
 
 ---
 
-## API Overview
+## API Documentation
 
-| Method | Endpoint                                | Auth | Description                  |
-| ------ | --------------------------------------- | ---- | ---------------------------- |
-| POST   | `/api/v1/auth/register`                 | No   | Register with email          |
-| POST   | `/api/v1/auth/login`                    | No   | Login                        |
-| POST   | `/api/v1/auth/logout`                   | No   | Logout (refresh token)       |
-| POST   | `/api/v1/auth/refresh`                  | No   | Refresh tokens               |
-| GET    | `/api/v1/auth/oauth/:provider`          | No   | OAuth initiate               |
-| GET    | `/api/v1/auth/oauth/:provider/callback` | No   | OAuth callback               |
-| POST   | `/api/v1/auth/email/send-verification`  | Yes  | Send verification OTP        |
-| POST   | `/api/v1/auth/email/verify`             | Yes  | Verify email OTP             |
-| POST   | `/api/v1/auth/forgot-password`          | No   | Request password reset OTP   |
-| POST   | `/api/v1/auth/verify-reset-otp`         | No   | Verify OTP, get reset token  |
-| POST   | `/api/v1/auth/reset-password`           | No   | Reset password (reset token) |
-| GET    | `/api/v1/users/me`                      | Yes  | Current user profile         |
-| GET    | `/health`                               | No   | Health check                 |
+Interactive API docs (Swagger UI) are available at **`/docs`** when the server is running (e.g. `http://localhost:3000/docs` in development or `https://your-api.com/docs` in production). Try endpoints directly from the browser.
 
 ---
 
 ## Documentation
 
+- **API Docs** — Available at `/docs` when the server is running (Swagger UI)
 - [ARCHITECTURE.md](ARCHITECTURE.md) — PDDA, folder structure, workers, layer breakdown
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Community guidelines

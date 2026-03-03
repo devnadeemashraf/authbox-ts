@@ -2,6 +2,7 @@ import express, { type Express } from 'express';
 
 import { globalErrorHandler, requestIdMiddleware } from '@/core/middlewares';
 import { notFound, ok } from '@/core/response';
+import { mountDocs } from '@/infrastructure/docs/docs.routes';
 import { authRouter } from '@/modules/auth/routes/auth.routes';
 import { userRouter } from '@/modules/users/routes/user.routes';
 
@@ -30,6 +31,9 @@ export function createApp(): Express {
 
   // --- Health check (for load balancers / k8s probes)
   app.get('/health', (_req, res) => ok(res, { status: 'ok' }));
+
+  // --- API docs (Swagger UI at /docs)
+  mountDocs(app);
 
   // --- API v1 routes
   app.use('/api/v1/auth', authRouter);

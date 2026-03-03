@@ -35,6 +35,11 @@ src/
 │   └── security/               # Hashing (Argon2), JWT signing wrappers
 ├── infrastructure/             # External Systems (Singletons)
 │   ├── database/               # DB Connection pool / ORM client
+│   ├── docs/                   # OpenAPI spec (one file per endpoint)
+│   │   ├── paths/              # paths/auth/*.path.ts, paths/health/*.path.ts, paths/users/*.path.ts
+│   │   ├── components.ts       # securitySchemes
+│   │   ├── spec.ts             # Assembles full spec
+│   │   └── docs.routes.ts      # Mounts Swagger UI at /docs
 │   ├── cache/                  # Redis client
 │   └── mailer/                 # Nodemailer / SendGrid client
 ├── modules/                    # Domain Modules
