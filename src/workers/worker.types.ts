@@ -6,6 +6,8 @@ import type { Job } from 'bullmq';
  */
 export interface WorkerContext {
   mailer: import('@/core/interfaces/mailer.interface').IMailer;
+  subscriptionRepo?: import('@/modules/subscriptions/repositories/subscription.repository').SubscriptionRepository;
+  userRepo?: import('@/modules/users/repositories/user.repository').UserRepository;
 }
 
 /** Processor function signature for BullMQ Worker. Accepts any job payload. */

@@ -66,6 +66,7 @@
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "reflect-metadata": "^0.2.2",
+    "stripe": "^20.4.0",
     "swagger-ui-express": "^5.0.1",
     "tsyringe": "^4.10.0",
     "zod": "^4.3.6"

@@ -6,6 +6,8 @@ export const QUEUE_NAMES = {
   EMAIL_VERIFICATION: 'email-verification',
   WELCOME_EMAIL: 'welcome-email',
   PASSWORD_RESET: 'password-reset',
+  SUBSCRIPTION_RENEWAL_REMINDER: 'subscription-renewal-reminder',
+  SUBSCRIPTION_DEMOTION: 'subscription-demotion',
 } as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES];

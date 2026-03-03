@@ -112,6 +112,14 @@ export const env = cleanEnv(process.env, {
   S3_SECRET_ACCESS_KEY: str({ default: 'authbox_password' }),
   S3_REGION: str({ default: 'us-east-1' }),
 
+  // Stripe (subscriptions)
+  /** When empty, subscription endpoints return 503 */
+  STRIPE_SECRET_KEY: str({ default: '' }),
+  /** Required for webhook signature verification. Use `stripe listen` for local dev. */
+  STRIPE_WEBHOOK_SECRET: str({ default: '' }),
+  /** Stripe Price ID for premium tier (e.g. price_xxx) */
+  STRIPE_PREMIUM_PRICE_ID: str({ default: '' }),
+
   // Hardening
   /** Set to true if behind a reverse proxy (NGINX, Traefik, etc.) */
   TRUST_PROXY: bool({ default: false }),

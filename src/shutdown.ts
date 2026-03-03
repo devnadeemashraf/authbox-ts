@@ -45,3 +45,21 @@ export async function gracefulShutdown(server: Server): Promise<void> {
   await completed;
   process.exit(process.exitCode ?? 0);
 }
+
+/**
+ * Runs registered shutdown tasks without closing an HTTP server.
+ * Use for worker processes that have no server.
+ */
+export async function runShutdownTasks(): Promise<void> {
+  logger.info('Shutdown signal received, running cleanup tasks...');
+  await Promise.all(
+    cleanupTasks.map(async (task) => {
+      try {
+        await Promise.resolve(task());
+      } catch (err) {
+        logger.error({ err }, 'Shutdown task failed');
+      }
+    }),
+  );
+  process.exit(process.exitCode ?? 0);
+}

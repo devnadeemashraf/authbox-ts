@@ -4,6 +4,8 @@ import { globalErrorHandler, requestIdMiddleware } from '@/core/middlewares';
 import { notFound, ok } from '@/core/response';
 import { mountDocs } from '@/infrastructure/docs/docs.routes';
 import { authRouter } from '@/modules/auth/routes/auth.routes';
+import { subscriptionRouter } from '@/modules/subscriptions/routes/subscription.routes';
+import { webhookRouter } from '@/modules/subscriptions/routes/webhook.routes';
 import { userRouter } from '@/modules/users/routes/user.routes';
 
 export function createApp(): Express {
@@ -14,6 +16,9 @@ export function createApp(): Express {
 
   // --- Request ID (traceability for errors)
   app.use(requestIdMiddleware);
+
+  // --- Webhook route MUST use raw body (before express.json) for Stripe signature verification
+  app.use('/api/v1/webhooks', webhookRouter);
 
   // --- Body parsing
   app.use(express.json());
@@ -38,6 +43,7 @@ export function createApp(): Express {
   // --- API v1 routes
   app.use('/api/v1/auth', authRouter);
   app.use('/api/v1/users', userRouter);
+  app.use('/api/v1/subscriptions', subscriptionRouter);
 
   // --- 404 handler (use error format for consistency)
   app.use((_req, res) => notFound(res, res.locals?.requestId));
