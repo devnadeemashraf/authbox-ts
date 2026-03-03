@@ -8,4 +8,5 @@ export const AuthTokens = {
   LoginWithEmailService: Symbol('authbox.auth.LoginWithEmailService'),
   RegisterWithEmailService: Symbol('authbox.auth.RegisterWithEmailService'),
   LogoutWithRefreshService: Symbol('authbox.auth.LogoutWithRefreshService'),
+  RefreshWithTokenService: Symbol('authbox.auth.RefreshWithTokenService'),
 } as const;

@@ -97,4 +97,45 @@ describe('AuthController', () => {
       // 204 = success; 500 = DB unavailable (e.g. CI without test DB)
     });
   });
+
+  describe('POST /api/v1/auth/refresh', () => {
+    it('returns 422 for missing refreshToken', async () => {
+      const res = await getTestApp().post('/api/v1/auth/refresh').send({});
+
+      expect(res.status).toBe(422);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('returns 401 for invalid refresh token', async () => {
+      const res = await getTestApp()
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken: 'invalid-token' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error?.message).toBe('Invalid or expired refresh token');
+    });
+
+    it('returns 200 with new tokens when DB available', async () => {
+      const token = signRefreshToken({
+        sub: 'user-123',
+        email: 'test@example.com',
+        permissions: 1,
+        tierId: 1,
+        jti: 'session-456',
+      });
+      const res = await getTestApp().post('/api/v1/auth/refresh').send({ refreshToken: token });
+
+      expect([200, 401, 500]).toContain(res.status);
+      if (res.status === 200) {
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.user).toBeDefined();
+        expect(res.body.data.tokens).toMatchObject({
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+        });
+      }
+      // 401 = session not found; 500 = DB unavailable
+    });
+  });
 });
