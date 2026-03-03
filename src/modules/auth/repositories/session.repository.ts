@@ -33,4 +33,19 @@ export class SessionRepository extends BaseRepository<Session> {
 
     return Number(result?.count ?? 0);
   }
+
+  /** Lists active (non-expired) sessions for a user, ordered by createdAt desc. */
+  async findActiveByUserId(userId: string): Promise<Session[]> {
+    const rows = await this.db(this.tableName)
+      .where('userId', userId)
+      .where('expiresAt', '>', this.db.fn.now())
+      .orderBy('createdAt', 'desc');
+
+    return rows.map((row) => this.toEntity(row as Record<string, unknown>));
+  }
+
+  /** Deletes all sessions for a user. Returns number of deleted rows. */
+  async deleteByUserId(userId: string): Promise<number> {
+    return this.db(this.tableName).where('userId', userId).del();
+  }
 }

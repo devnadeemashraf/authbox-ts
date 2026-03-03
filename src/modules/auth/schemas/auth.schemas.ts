@@ -77,3 +77,9 @@ export const resetPasswordSchema = z.object({
 });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+/** Session id (UUID) for revoke endpoint */
+export const sessionIdParamSchema = z.object({
+  id: z.string().uuid('Invalid session id'),
+});
+export type SessionIdParam = z.infer<typeof sessionIdParamSchema>;

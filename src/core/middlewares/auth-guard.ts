@@ -7,12 +7,14 @@ import { verifyToken } from '@/core/security/jwt';
 /**
  * Auth context attached to req.user after successful JWT verification.
  * Permissions and tierId come from the token payload (no DB lookup).
+ * jti is the session id for the current access token (used for isCurrent in session list).
  */
 export interface AuthUser {
   id: string;
   email: string;
   permissions: number;
   tierId: number;
+  jti: string;
 }
 
 export interface AuthenticatedRequest extends Request {
@@ -54,7 +56,7 @@ export function authGuard(req: Request, _res: Response, next: NextFunction): voi
     return;
   }
 
-  if (payload.type !== 'access') {
+  if (payload.type !== 'access' || !payload.jti) {
     next(new UnauthorizedError({ message: 'Invalid token type' }));
     return;
   }
@@ -64,6 +66,7 @@ export function authGuard(req: Request, _res: Response, next: NextFunction): voi
     email: payload.email,
     permissions: payload.permissions,
     tierId: payload.tierId,
+    jti: payload.jti,
   };
   (req as AuthenticatedRequest).user = user;
   next();

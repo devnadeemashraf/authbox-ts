@@ -19,4 +19,7 @@ export const AuthTokens = {
   SendPasswordResetOtpService: Symbol('authbox.auth.SendPasswordResetOtpService'),
   VerifyPasswordResetOtpService: Symbol('authbox.auth.VerifyPasswordResetOtpService'),
   ResetPasswordService: Symbol('authbox.auth.ResetPasswordService'),
+  ListSessionsService: Symbol('authbox.auth.ListSessionsService'),
+  RevokeSessionService: Symbol('authbox.auth.RevokeSessionService'),
+  RevokeAllSessionsService: Symbol('authbox.auth.RevokeAllSessionsService'),
 } as const;

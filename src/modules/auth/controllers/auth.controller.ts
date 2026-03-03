@@ -10,22 +10,26 @@ import {
   refreshSchema,
   registerSchema,
   resetPasswordSchema,
+  sessionIdParamSchema,
   verifyOtpSchema,
   verifyPasswordResetOtpSchema,
 } from '../schemas/auth.schemas';
+import type { ListSessionsService } from '../services/list-sessions.service';
 import type { LoginWithEmailService } from '../services/login-with-email.service';
 import type { LogoutWithRefreshService } from '../services/logout-with-refresh.service';
 import type { OAuthService } from '../services/oauth.service';
 import type { RefreshWithTokenService } from '../services/refresh-with-token.service';
 import type { RegisterWithEmailService } from '../services/register-with-email.service';
 import type { ResetPasswordService } from '../services/reset-password.service';
+import type { RevokeAllSessionsService } from '../services/revoke-all-sessions.service';
+import type { RevokeSessionService } from '../services/revoke-session.service';
 import type { SendPasswordResetOtpService } from '../services/send-password-reset-otp.service';
 import type { SendVerificationOtpService } from '../services/send-verification-otp.service';
 import type { VerifyEmailOtpService } from '../services/verify-email-otp.service';
 import type { VerifyPasswordResetOtpService } from '../services/verify-password-reset-otp.service';
 
 import { env } from '@/config/env';
-import { BaseController } from '@/core/base';
+import { type AuthenticatedRequest, BaseController } from '@/core/base';
 import { Tokens } from '@/core/di/tokens';
 import { toUserResponseDto } from '@/core/dto';
 import { created, noContent, ok } from '@/core/response';
@@ -54,6 +58,12 @@ export class AuthController extends BaseController {
     private readonly verifyPasswordResetOtpService: VerifyPasswordResetOtpService,
     @inject(Tokens.Auth.ResetPasswordService)
     private readonly resetPasswordService: ResetPasswordService,
+    @inject(Tokens.Auth.ListSessionsService)
+    private readonly listSessionsService: ListSessionsService,
+    @inject(Tokens.Auth.RevokeSessionService)
+    private readonly revokeSessionService: RevokeSessionService,
+    @inject(Tokens.Auth.RevokeAllSessionsService)
+    private readonly revokeAllSessionsService: RevokeAllSessionsService,
   ) {
     super();
   }
@@ -148,6 +158,26 @@ export class AuthController extends BaseController {
   resetPassword = this.asyncHandler(async (req: Request, res: Response) => {
     const input = validateWithZod(resetPasswordSchema, req.body);
     await this.resetPasswordService.execute(input.resetToken, input.newPassword);
+    noContent(res);
+  });
+
+  listSessions = this.asyncHandler(async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const userId = this.getUserId(req);
+    const sessions = await this.listSessionsService.execute(userId, authReq.user.jti);
+    ok(res, { sessions });
+  });
+
+  revokeSession = this.asyncHandler(async (req: Request, res: Response) => {
+    const userId = this.getUserId(req);
+    const { id } = validateWithZod(sessionIdParamSchema, req.params);
+    await this.revokeSessionService.execute(userId, id);
+    noContent(res);
+  });
+
+  revokeAllSessions = this.asyncHandler(async (req: Request, res: Response) => {
+    const userId = this.getUserId(req);
+    await this.revokeAllSessionsService.execute(userId);
     noContent(res);
   });
 }

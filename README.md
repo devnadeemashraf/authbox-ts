@@ -56,7 +56,7 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 - **OAuth** — Google (extensible to GitHub, Twitter) with account linking by email
 - **Email Verification** — OTP-based, 60s resend cooldown, queued delivery
 - **Password Reset** — OTP ownership verification, 10-min single-use reset token
-- **Sessions** — JWT access + refresh, session storage, tier-based limits (planned)
+- **Sessions** — JWT access + refresh, session storage, tier-based limits, list & revoke
 
 ### Security
 

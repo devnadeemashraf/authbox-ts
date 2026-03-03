@@ -81,6 +81,7 @@ export class RefreshWithTokenService extends BaseService {
       email: user.email,
       permissions: user.permissions,
       tierId: user.tierId,
+      jti: newSessionId,
     });
 
     const refreshToken = signRefreshToken({

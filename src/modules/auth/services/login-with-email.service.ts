@@ -71,6 +71,7 @@ export class LoginWithEmailService extends BaseService {
       email: user.email,
       permissions: user.permissions,
       tierId: user.tierId,
+      jti: sessionId,
     });
 
     const refreshToken = signRefreshToken({

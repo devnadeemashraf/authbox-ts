@@ -28,6 +28,7 @@ describe('Test setup', () => {
       email: 'test@example.com',
       permissions: 1,
       tierId: 1,
+      jti: 'session-123',
     });
     const res = await getTestApp().get('/api/v1/users/me').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);

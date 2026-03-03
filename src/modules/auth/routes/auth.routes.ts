@@ -22,4 +22,8 @@ authRouter.post('/forgot-password', authController.forgotPassword);
 authRouter.post('/verify-reset-otp', authController.verifyPasswordResetOtp);
 authRouter.post('/reset-password', authController.resetPassword);
 
+authRouter.get('/sessions', authGuard, authController.listSessions);
+authRouter.delete('/sessions', authGuard, authController.revokeAllSessions);
+authRouter.delete('/sessions/:id', authGuard, authController.revokeSession);
+
 export { authRouter };

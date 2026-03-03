@@ -8,6 +8,7 @@ import { OAuthProviderRegistry } from '@/modules/auth/providers/oauth-provider.r
 import { SessionRepository } from '@/modules/auth/repositories/session.repository';
 import { SocialProviderRepository } from '@/modules/auth/repositories/social-provider.repository';
 import { VerificationTokenRepository } from '@/modules/auth/repositories/verification-token.repository';
+import { ListSessionsService } from '@/modules/auth/services/list-sessions.service';
 import { LoginWithEmailService } from '@/modules/auth/services/login-with-email.service';
 import { LogoutWithRefreshService } from '@/modules/auth/services/logout-with-refresh.service';
 import { OAuthService } from '@/modules/auth/services/oauth.service';
@@ -15,6 +16,8 @@ import { QueueWelcomeEmailService } from '@/modules/auth/services/queue-welcome-
 import { RefreshWithTokenService } from '@/modules/auth/services/refresh-with-token.service';
 import { RegisterWithEmailService } from '@/modules/auth/services/register-with-email.service';
 import { ResetPasswordService } from '@/modules/auth/services/reset-password.service';
+import { RevokeAllSessionsService } from '@/modules/auth/services/revoke-all-sessions.service';
+import { RevokeSessionService } from '@/modules/auth/services/revoke-session.service';
 import { SendPasswordResetOtpService } from '@/modules/auth/services/send-password-reset-otp.service';
 import { SendVerificationOtpService } from '@/modules/auth/services/send-verification-otp.service';
 import { TierEnforcementService } from '@/modules/auth/services/tier-enforcement.service';
@@ -60,4 +63,9 @@ export function registerAuthBindings(container: DependencyContainer): void {
     useClass: VerifyPasswordResetOtpService,
   });
   container.register(Tokens.Auth.ResetPasswordService, { useClass: ResetPasswordService });
+  container.register(Tokens.Auth.ListSessionsService, { useClass: ListSessionsService });
+  container.register(Tokens.Auth.RevokeSessionService, { useClass: RevokeSessionService });
+  container.register(Tokens.Auth.RevokeAllSessionsService, {
+    useClass: RevokeAllSessionsService,
+  });
 }

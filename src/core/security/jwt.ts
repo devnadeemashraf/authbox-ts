@@ -13,6 +13,7 @@ export interface TokenPayload {
 
 export interface AccessTokenPayload extends TokenPayload {
   type: 'access';
+  jti: string; // session id – used for isCurrent in session list
 }
 
 export interface RefreshTokenPayload extends TokenPayload {
@@ -25,7 +26,9 @@ const signOptions: jwt.SignOptions = {
   audience: env.JWT_AUDIENCE,
 };
 
-export function signAccessToken(payload: Omit<AccessTokenPayload, 'type'>): string {
+export function signAccessToken(
+  payload: Omit<AccessTokenPayload, 'type'> & { jti: string },
+): string {
   return jwt.sign({ ...payload, type: 'access' } as AccessTokenPayload, env.JWT_SECRET, {
     ...signOptions,
     expiresIn: ACCESS_EXPIRY,
