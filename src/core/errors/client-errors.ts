@@ -85,3 +85,16 @@ export class ValidationError extends AppError {
     });
   }
 }
+
+/**
+ * 503 – Service temporarily unavailable (e.g. file uploads disabled)
+ */
+export class ServiceUnavailableError extends AppError {
+  constructor(options: ClientErrorOptions) {
+    super({
+      ...options,
+      statusCode: HttpStatus.SERVICE_UNAVAILABLE,
+      errorCode: ErrorCode.SERVICE_UNAVAILABLE,
+    });
+  }
+}

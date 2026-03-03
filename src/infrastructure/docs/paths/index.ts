@@ -12,6 +12,7 @@ import { resetPasswordPath } from './auth/reset-password.path';
 import { sessionsPath } from './auth/sessions.path';
 import { verifyResetOtpPath } from './auth/verify-reset-otp.path';
 import { healthPath } from './health/health.path';
+import { avatarPath } from './users/avatar.path';
 import { mePath } from './users/me.path';
 
 function mergePaths(...pathObjects: PathsObject[]): PathsObject {
@@ -34,4 +35,5 @@ export const allPaths: PathsObject = mergePaths(
   resetPasswordPath,
   sessionsPath,
   mePath,
+  avatarPath,
 );

@@ -7,7 +7,26 @@ export const mePath: PathsObject = {
       description: "Returns the authenticated user's profile.",
       tags: ['Users'],
       security: [{ bearerAuth: [] }],
-      responses: { 200: { description: 'OK' }, 401: { description: 'Unauthorized' } },
+      responses: {
+        200: {
+          description: 'OK',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  avatarUrl: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Object key; use GET /me/avatar/read-url for display URL',
+                  },
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized' },
+      },
     },
     patch: {
       summary: 'Update profile',

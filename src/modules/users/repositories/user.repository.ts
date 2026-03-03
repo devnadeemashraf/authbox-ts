@@ -20,6 +20,7 @@ export class UserRepository extends BaseRepository<User> {
       username: row.username as string | null,
       passwordHash: row.passwordHash as string | null,
       isEmailVerified: Boolean(row.isEmailVerified),
+      avatarUrl: (row.avatarUrl as string | null) ?? null,
       permissions: Number(row.permissions),
       tierId: Number(row.tierId),
       createdAt: new Date(row.createdAt as string),

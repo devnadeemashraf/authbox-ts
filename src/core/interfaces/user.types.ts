@@ -6,6 +6,7 @@ export interface User {
   username: string | null;
   passwordHash: string | null; // Nullable for users who only use OAuth
   isEmailVerified: boolean;
+  avatarUrl: string | null; // Object key or URL for avatar (e.g. avatars/{userId}/{uuid}.ext)
 
   permissions: number; // Bitmask integer
   tierId: number;

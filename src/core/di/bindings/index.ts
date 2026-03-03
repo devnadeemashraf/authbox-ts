@@ -1,6 +1,7 @@
 import type { DependencyContainer } from 'tsyringe';
 
 import { registerAuthBindings } from './auth.bindings';
+import { registerFilesBindings } from './files.bindings';
 import { registerInfrastructureBindings } from './infrastructure.bindings';
 import { registerSecurityBindings } from './security.bindings';
 import { registerUsersBindings } from './users.bindings';
@@ -12,6 +13,7 @@ import { registerUsersBindings } from './users.bindings';
 export function applyBindings(container: DependencyContainer): void {
   registerInfrastructureBindings(container);
   registerSecurityBindings(container);
+  registerFilesBindings(container);
   registerUsersBindings(container);
   registerAuthBindings(container);
 }

@@ -8,6 +8,7 @@ export interface UserResponseDto {
   email: string;
   username: string | null;
   isEmailVerified: boolean;
+  avatarUrl: string | null;
   permissions: number;
   tierId: number;
   createdAt: Date;
@@ -23,6 +24,7 @@ export function toUserResponseDto(user: User): UserResponseDto {
     email: user.email,
     username: user.username,
     isEmailVerified: user.isEmailVerified,
+    avatarUrl: user.avatarUrl,
     permissions: user.permissions,
     tierId: user.tierId,
     createdAt: user.createdAt,

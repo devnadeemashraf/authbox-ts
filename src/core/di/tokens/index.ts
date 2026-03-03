@@ -1,4 +1,5 @@
 import { AuthTokens } from './auth.tokens';
+import { FilesTokens } from './files.tokens';
 import { InfrastructureTokens } from './infrastructure.tokens';
 import { SecurityTokens } from './security.tokens';
 import { UsersTokens } from './users.tokens';
@@ -11,4 +12,5 @@ export const Tokens = {
   Security: SecurityTokens,
   Auth: AuthTokens,
   Users: UsersTokens,
+  Files: FilesTokens,
 } as const;

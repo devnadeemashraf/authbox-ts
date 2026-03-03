@@ -12,3 +12,20 @@ export const updateMeSchema = z.object({
 });
 
 export type UpdateMeInput = z.infer<typeof updateMeSchema>;
+
+/** Avatar upload URL request */
+export const avatarUploadUrlSchema = z.object({
+  contentType: z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  contentLength: z
+    .number()
+    .int()
+    .positive()
+    .max(2 * 1024 * 1024, 'Max 2MB'),
+});
+export type AvatarUploadUrlInput = z.infer<typeof avatarUploadUrlSchema>;
+
+/** Avatar confirm (after client upload) */
+export const avatarConfirmSchema = z.object({
+  objectKey: z.string().min(1, 'objectKey required'),
+});
+export type AvatarConfirmInput = z.infer<typeof avatarConfirmSchema>;

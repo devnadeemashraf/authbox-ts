@@ -15,7 +15,7 @@ import { Permissions } from '@/core/security/permissions';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const DEFAULT_TIER_ID = 1; // free tier id in database
-const DEFAULT_PERMISSIONS = Permissions.UPDATE_PROFILE;
+const DEFAULT_PERMISSIONS = Permissions.UPDATE_PROFILE | Permissions.UPLOAD_AVATAR;
 
 @injectable()
 export class RegisterWithEmailService extends BaseService {
