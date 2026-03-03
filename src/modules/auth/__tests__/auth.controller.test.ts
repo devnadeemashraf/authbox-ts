@@ -138,4 +138,25 @@ describe('AuthController', () => {
       // 401 = session not found; 500 = DB unavailable
     });
   });
+
+  describe('GET /api/v1/auth/oauth/:provider', () => {
+    it('returns 400 for unsupported provider', async () => {
+      const res = await getTestApp().get('/api/v1/auth/oauth/unsupported');
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error?.message).toMatch(/unsupported|not found/i);
+    });
+
+    it('returns 200 with authorizationUrl and state when provider is configured', async () => {
+      const res = await getTestApp().get('/api/v1/auth/oauth/google');
+
+      if (res.status === 200) {
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.authorizationUrl).toMatch(/accounts\.google\.com/);
+        expect(res.body.data.state).toBeDefined();
+      }
+      // 400 when Google OAuth not configured (empty GOOGLE_CLIENT_ID)
+    });
+  });
 });

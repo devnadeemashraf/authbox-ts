@@ -11,4 +11,7 @@ authRouter.post('/register', authController.register);
 authRouter.post('/logout', authController.logout);
 authRouter.post('/refresh', authController.refresh);
 
+authRouter.get('/oauth/:provider/callback', authController.oauthCallback);
+authRouter.get('/oauth/:provider', authController.oauthInitiate);
+
 export { authRouter };

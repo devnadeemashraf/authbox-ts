@@ -28,3 +28,16 @@ export const refreshSchema = z.object({
 });
 
 export type RefreshInput = z.infer<typeof refreshSchema>;
+
+export const oauthInitiateSchema = z.object({
+  success_redirect: z.string().url().optional(),
+});
+
+export type OAuthInitiateInput = z.infer<typeof oauthInitiateSchema>;
+
+export const oauthCallbackSchema = z.object({
+  code: z.string().min(1, 'Code is required'),
+  state: z.string().min(1, 'State is required'),
+});
+
+export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>;
