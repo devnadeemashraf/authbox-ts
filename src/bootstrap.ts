@@ -1,6 +1,5 @@
 import type { Server } from 'http';
 
-import { createApp } from '@/app';
 import { env } from '@/config/env';
 import { bootstrapDI } from '@/core/di/container';
 import { logger } from '@/core/logger';
@@ -12,7 +11,7 @@ export async function bootstrapInfrastructure(): Promise<void> {
   await connectDatabase();
   registerOnShutdown(disconnectDatabase);
 
-  // --- tsyringe DI container
+  // --- tsyringe DI container (must run before app imports that resolve controllers)
   bootstrapDI();
 
   // --- Redis client (for sessions, cache)
@@ -26,6 +25,7 @@ export async function bootstrapInfrastructure(): Promise<void> {
 }
 
 export async function startServer(): Promise<Server> {
+  const { createApp } = await import('@/app');
   const app = createApp();
 
   return new Promise((resolve) => {
