@@ -1,13 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { UnauthorizedError } from '@/core/errors/client-errors';
+import type { AuthenticatedRequest } from '@/core/middlewares/auth-guard';
 
-/**
- * Request with authenticated user attached by authGuard middleware.
- */
-export interface AuthenticatedRequest extends Request {
-  user: { id: string };
-}
+export type { AuthenticatedRequest };
 
 /**
  * Base class for all controllers.

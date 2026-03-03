@@ -9,6 +9,8 @@ export const Permissions = {
   // Admin Actions
   MANAGE_USERS: 1 << 3, // 8
   MANAGE_TIERS: 1 << 4, // 16
+  MANAGE_SUBSCRIPTIONS: 1 << 5, // 32
+  UPLOAD_AVATAR: 1 << 6, // 64
 } as const;
 
 // Utility type to extract the permission names
