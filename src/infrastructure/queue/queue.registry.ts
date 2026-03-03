@@ -10,7 +10,7 @@ import { redisConnectionOptions } from './redis.client';
  * To add a new queue:
  * 1. Add name to queue-names.ts
  * 2. Create processor in workers/processors/
- * 3. Register processor in worker.entry.ts
+ * 3. Create definition in workers/definitions/ and add to WORKER_DEFINITIONS
  */
 const queues = new Map<string, Queue>();
 
@@ -29,7 +29,7 @@ export function getQueue<T extends QueueName>(name: T): Queue {
   return queue;
 }
 
-export function closeAllQueues(): Promise<void> {
+export async function closeAllQueues(): Promise<void> {
   return Promise.all(Array.from(queues.values()).map((q) => q.close())).then(() => {
     queues.clear();
   });

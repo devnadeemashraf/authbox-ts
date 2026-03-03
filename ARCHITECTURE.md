@@ -58,7 +58,11 @@ src/
 │       │   └── user.service.ts
 │       └── repositories/
 │           └── user.repository.ts
-├── workers/                    # Background job processors (e.g., SendWelcomeEmail)
+├── workers/                    # Background job processors (BullMQ)
+│   ├── definitions/            # Worker configs per queue
+│   ├── processors/             # Job logic (e.g., SendWelcomeEmail)
+│   ├── worker.bootstrap.ts     # Creates workers, wires events
+│   └── worker.entry.ts         # Entry point
 ├── app.ts                      # Express application assembly
 └── server.ts                   # Entry point: cluster setup, reflect-metadata
 
