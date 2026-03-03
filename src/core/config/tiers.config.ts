@@ -24,3 +24,9 @@ export const TIER_BY_NAME = Object.fromEntries(TIER_DEFINITIONS.map((t) => [t.na
   TierName,
   (typeof TIER_DEFINITIONS)[number]
 >;
+
+/** Lookup by id (1-based, matches DB after seed) – use when user has tierId */
+export const TIER_BY_ID = Object.fromEntries(TIER_DEFINITIONS.map((t, i) => [i + 1, t])) as Record<
+  number,
+  (typeof TIER_DEFINITIONS)[number]
+>;

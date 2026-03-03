@@ -6,6 +6,7 @@ import { AuthController } from '@/modules/auth/controllers/auth.controller';
 const authRouter: IRouter = Router();
 const authController = container.resolve(AuthController);
 
+authRouter.post('/login', authController.login);
 authRouter.post('/register', authController.register);
 
 export { authRouter };

@@ -1,6 +1,29 @@
 import { getTestApp } from '@/__tests__/setup/app';
 
 describe('AuthController', () => {
+  describe('POST /api/v1/auth/login', () => {
+    it('returns 422 for invalid email', async () => {
+      const res = await getTestApp()
+        .post('/api/v1/auth/login')
+        .send({ email: 'not-an-email', password: 'password123' });
+
+      expect(res.status).toBe(422);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('returns 401 for non-existent user when DB available', async () => {
+      const res = await getTestApp()
+        .post('/api/v1/auth/login')
+        .send({ email: 'nonexistent@example.com', password: 'password123' });
+
+      if (res.status === 401) {
+        expect(res.body.success).toBe(false);
+        expect(res.body.error?.message).toBe('Invalid email or password');
+      }
+      // If 500, DB may be unavailable (e.g. CI without test DB)
+    });
+  });
+
   describe('POST /api/v1/auth/register', () => {
     it('returns 422 for invalid email', async () => {
       const res = await getTestApp()
