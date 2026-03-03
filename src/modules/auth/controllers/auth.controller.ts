@@ -2,10 +2,11 @@ import type { Request, Response } from 'express';
 import { inject, injectable } from 'tsyringe';
 
 import { loginSchema, registerSchema } from '../schemas/auth.schemas';
-import { LoginWithEmailService } from '../services/login-with-email.service';
-import { RegisterWithEmailService } from '../services/register-with-email.service';
+import type { LoginWithEmailService } from '../services/login-with-email.service';
+import type { RegisterWithEmailService } from '../services/register-with-email.service';
 
 import { BaseController } from '@/core/base';
+import { Tokens } from '@/core/di/tokens';
 import { toUserResponseDto } from '@/core/dto';
 import { created, ok } from '@/core/response';
 import { validateWithZod } from '@/core/validation';
@@ -13,8 +14,9 @@ import { validateWithZod } from '@/core/validation';
 @injectable()
 export class AuthController extends BaseController {
   constructor(
-    @inject(LoginWithEmailService) private readonly loginWithEmailService: LoginWithEmailService,
-    @inject(RegisterWithEmailService)
+    @inject(Tokens.Auth.LoginWithEmailService)
+    private readonly loginWithEmailService: LoginWithEmailService,
+    @inject(Tokens.Auth.RegisterWithEmailService)
     private readonly registerWithEmailService: RegisterWithEmailService,
   ) {
     super();

@@ -1,8 +1,9 @@
 import { inject, injectable } from 'tsyringe';
 
-import { SessionRepository } from '../repositories/session.repository';
+import type { SessionRepository } from '../repositories/session.repository';
 
 import { TIER_BY_ID } from '@/core/config/tiers.config';
+import { Tokens } from '@/core/di/tokens';
 import { ForbiddenError } from '@/core/errors/client-errors';
 
 /**
@@ -11,7 +12,9 @@ import { ForbiddenError } from '@/core/errors/client-errors';
  */
 @injectable()
 export class TierEnforcementService {
-  constructor(@inject(SessionRepository) private readonly sessionRepo: SessionRepository) {}
+  constructor(
+    @inject(Tokens.Auth.SessionRepository) private readonly sessionRepo: SessionRepository,
+  ) {}
 
   /**
    * Throws ForbiddenError if the user has reached their tier's max session limit.

@@ -1,12 +1,14 @@
+import { AuthTokens } from './auth.tokens';
 import { InfrastructureTokens } from './infrastructure.tokens';
+import { SecurityTokens } from './security.tokens';
+import { UsersTokens } from './users.tokens';
 
 /**
  * Aggregated tokens by layer. Add new token modules and merge here as the app grows.
  */
 export const Tokens = {
   Infrastructure: InfrastructureTokens,
-
-  // --- Future layers (add as needed)
-  // Auth: AuthTokens,
-  // Users: UserTokens,
+  Security: SecurityTokens,
+  Auth: AuthTokens,
+  Users: UsersTokens,
 } as const;

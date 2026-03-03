@@ -3,17 +3,17 @@ import { randomUUID } from 'node:crypto';
 import type { Knex } from 'knex';
 import { inject, injectable } from 'tsyringe';
 
-import { SessionRepository } from '../repositories/session.repository';
+import type { SessionRepository } from '../repositories/session.repository';
 import type { LoginInput } from '../schemas/auth.schemas';
-import { TierEnforcementService } from './tier-enforcement.service';
+import type { TierEnforcementService } from './tier-enforcement.service';
 
 import { BaseService } from '@/core/base';
 import { Tokens } from '@/core/di/tokens';
 import { UnauthorizedError } from '@/core/errors/client-errors';
 import type { User } from '@/core/interfaces/user.types';
 import { signAccessToken, signRefreshToken } from '@/core/security/jwt';
-import { PasswordService } from '@/core/security/password.service';
-import { UserRepository } from '@/modules/users/repositories/user.repository';
+import type { PasswordHasher } from '@/core/security/password-hasher';
+import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const INVALID_CREDENTIALS = 'Invalid email or password';
 
@@ -26,10 +26,11 @@ export interface LoginResult {
 export class LoginWithEmailService extends BaseService {
   constructor(
     @inject(Tokens.Infrastructure.Database) db: Knex,
-    @inject(UserRepository) private readonly userRepo: UserRepository,
-    @inject(SessionRepository) private readonly sessionRepo: SessionRepository,
-    @inject(PasswordService) private readonly passwordService: PasswordService,
-    @inject(TierEnforcementService) private readonly tierEnforcement: TierEnforcementService,
+    @inject(Tokens.Users.UserRepository) private readonly userRepo: UserRepository,
+    @inject(Tokens.Auth.SessionRepository) private readonly sessionRepo: SessionRepository,
+    @inject(Tokens.Security.PasswordHasher) private readonly passwordHasher: PasswordHasher,
+    @inject(Tokens.Auth.TierEnforcementService)
+    private readonly tierEnforcement: TierEnforcementService,
   ) {
     super(db);
   }
@@ -47,7 +48,7 @@ export class LoginWithEmailService extends BaseService {
       throw new UnauthorizedError({ message: INVALID_CREDENTIALS });
     }
 
-    const valid = await this.passwordService.verify(user.passwordHash, input.password);
+    const valid = await this.passwordHasher.verify(user.passwordHash, input.password);
     if (!valid) {
       throw new UnauthorizedError({ message: INVALID_CREDENTIALS });
     }

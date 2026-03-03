@@ -2,10 +2,10 @@ import * as argon2 from 'argon2';
 import { injectable } from 'tsyringe';
 
 /**
- * Handles password hashing and verification. Single responsibility: cryptography.
+ * Argon2 password hashing wrapper. Single responsibility: cryptography.
  */
 @injectable()
-export class PasswordService {
+export class PasswordHasher {
   async hash(password: string): Promise<string> {
     return argon2.hash(password, { type: argon2.argon2id });
   }

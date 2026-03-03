@@ -9,8 +9,8 @@ import { BaseService } from '@/core/base';
 import { Tokens } from '@/core/di/tokens';
 import { ConflictError } from '@/core/errors/client-errors';
 import type { User } from '@/core/interfaces/user.types';
-import { PasswordService } from '@/core/security/password.service';
-import { UserRepository } from '@/modules/users/repositories/user.repository';
+import type { PasswordHasher } from '@/core/security/password-hasher';
+import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const DEFAULT_TIER_ID = 1; // free tier
 const DEFAULT_PERMISSIONS = 1; // READ_PROFILE
@@ -19,8 +19,8 @@ const DEFAULT_PERMISSIONS = 1; // READ_PROFILE
 export class RegisterWithEmailService extends BaseService {
   constructor(
     @inject(Tokens.Infrastructure.Database) db: Knex,
-    @inject(UserRepository) private readonly userRepo: UserRepository,
-    @inject(PasswordService) private readonly passwordService: PasswordService,
+    @inject(Tokens.Users.UserRepository) private readonly userRepo: UserRepository,
+    @inject(Tokens.Security.PasswordHasher) private readonly passwordHasher: PasswordHasher,
   ) {
     super(db);
   }
@@ -31,7 +31,7 @@ export class RegisterWithEmailService extends BaseService {
       throw new ConflictError({ message: 'Email already registered' });
     }
 
-    const passwordHash = await this.passwordService.hash(input.password);
+    const passwordHash = await this.passwordHasher.hash(input.password);
     const user = await this.userRepo.create({
       id: randomUUID(),
       email: input.email.toLowerCase(),
