@@ -7,4 +7,5 @@ export const AuthTokens = {
   TierEnforcementService: Symbol('authbox.auth.TierEnforcementService'),
   LoginWithEmailService: Symbol('authbox.auth.LoginWithEmailService'),
   RegisterWithEmailService: Symbol('authbox.auth.RegisterWithEmailService'),
+  LogoutWithRefreshService: Symbol('authbox.auth.LogoutWithRefreshService'),
 } as const;

@@ -36,12 +36,10 @@ export function signRefreshToken(
   payload: Omit<RefreshTokenPayload, 'type'>,
   expiresIn: string = env.JWT_EXPIRY,
 ): string {
-  const options: jwt.SignOptions = {
+  return jwt.sign({ ...payload, type: 'refresh' } as RefreshTokenPayload, env.JWT_SECRET, {
     ...signOptions,
     expiresIn: expiresIn as jwt.SignOptions['expiresIn'],
-    jwtid: payload.jti,
-  };
-  return jwt.sign({ ...payload, type: 'refresh' } as RefreshTokenPayload, env.JWT_SECRET, options);
+  });
 }
 
 export function verifyToken<T extends TokenPayload>(token: string): T {

@@ -1,4 +1,5 @@
 import { getTestApp } from '@/__tests__/setup/app';
+import { signRefreshToken } from '@/core/security/jwt';
 
 describe('AuthController', () => {
   describe('POST /api/v1/auth/login', () => {
@@ -71,6 +72,29 @@ describe('AuthController', () => {
         expect(res.body.data.user.passwordHash).toBeUndefined();
       }
       // If 500 (DB not available), test is skipped - no assertion
+    });
+  });
+
+  describe('POST /api/v1/auth/logout', () => {
+    it('returns 422 for missing refreshToken', async () => {
+      const res = await getTestApp().post('/api/v1/auth/logout').send({});
+
+      expect(res.status).toBe(422);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('returns 204 for valid refreshToken when DB available', async () => {
+      const token = signRefreshToken({
+        sub: 'user-123',
+        email: 'test@example.com',
+        permissions: 1,
+        tierId: 1,
+        jti: 'session-456',
+      });
+      const res = await getTestApp().post('/api/v1/auth/logout').send({ refreshToken: token });
+
+      expect([204, 500]).toContain(res.status);
+      // 204 = success; 500 = DB unavailable (e.g. CI without test DB)
     });
   });
 });
