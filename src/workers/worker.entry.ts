@@ -6,7 +6,7 @@ import { bootstrapWorkers, shutdownWorkers } from './worker.bootstrap';
 import { bootstrapDI, container } from '@/core/di/container';
 import { Tokens } from '@/core/di/tokens';
 import { logger } from '@/core/logger';
-import { connectDatabase, disconnectDatabase } from '@/infrastructure/database/db.client';
+import { connectDatabase, disconnectDatabase, getDb } from '@/infrastructure/database/db.client';
 import { ConsoleMailer } from '@/infrastructure/mailer/console.mailer';
 import { closeAllQueues } from '@/infrastructure/queue/queue.registry';
 import { disconnectQueue } from '@/infrastructure/queue/redis.client';
@@ -25,6 +25,7 @@ async function main(): Promise<void> {
 
   const ctx: import('./worker.types').WorkerContext = {
     mailer: new ConsoleMailer(),
+    db: getDb(),
     subscriptionRepo: container.resolve(Tokens.Subscriptions.SubscriptionRepository),
     userRepo: container.resolve(Tokens.Users.UserRepository),
   };

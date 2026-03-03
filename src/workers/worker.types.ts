@@ -6,6 +6,7 @@ import type { Job } from 'bullmq';
  */
 export interface WorkerContext {
   mailer: import('@/core/interfaces/mailer.interface').IMailer;
+  db?: import('knex').Knex;
   subscriptionRepo?: import('@/modules/subscriptions/repositories/subscription.repository').SubscriptionRepository;
   userRepo?: import('@/modules/users/repositories/user.repository').UserRepository;
 }

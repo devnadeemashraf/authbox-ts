@@ -79,7 +79,7 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 
 ### Infrastructure
 
-- **Background Jobs** — BullMQ workers for email verification, welcome emails, password reset, subscription renewal reminder, subscription demotion
+- **Background Jobs** — BullMQ workers for email verification, welcome emails, password reset, subscription renewal reminder, subscription demotion, database cleanup (expired sessions, verification tokens, old Stripe events)
 - **Separate Queues** — Each use case has its own queue; no cross-interference
 - **Health Check** — `/health` for load balancers and k8s probes
 
@@ -241,6 +241,7 @@ Interactive API docs (Swagger UI) are available at **`/docs`** when the server i
 - **API Docs** — Available at `/docs` when the server is running (Swagger UI)
 - [ARCHITECTURE.md](ARCHITECTURE.md) — PDDA, folder structure, workers, layer breakdown
 - [docs/PAYMENT_SUBSCRIPTION_DESIGN.md](docs/PAYMENT_SUBSCRIPTION_DESIGN.md) — Stripe flow, security model, renewal/demotion
+- [docs/DATABASE_CLEANUP.md](docs/DATABASE_CLEANUP.md) — Scheduled cleanup of expired sessions and tokens
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Community guidelines
 

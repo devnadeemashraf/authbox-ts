@@ -1,4 +1,5 @@
 import type { WorkerDefinition } from '../worker.types';
+import { databaseCleanupWorker } from './database-cleanup.worker';
 import { emailVerificationWorker } from './email-verification.worker';
 import { passwordResetWorker } from './password-reset.worker';
 import { subscriptionDemotionWorker } from './subscription-demotion.worker';
@@ -15,4 +16,5 @@ export const WORKER_DEFINITIONS: WorkerDefinition[] = [
   passwordResetWorker,
   subscriptionRenewalReminderWorker,
   subscriptionDemotionWorker,
+  databaseCleanupWorker,
 ];
