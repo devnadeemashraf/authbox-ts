@@ -4,12 +4,19 @@ import { env } from '@/config/env';
 import { bootstrapDI } from '@/core/di/container';
 import { logger } from '@/core/logger';
 import { connectDatabase, disconnectDatabase } from '@/infrastructure/database/db.client';
+import { closeAllQueues } from '@/infrastructure/queue/queue.registry';
+import { disconnectQueue } from '@/infrastructure/queue/redis.client';
 import { registerOnShutdown } from '@/shutdown';
 
 export async function bootstrapInfrastructure(): Promise<void> {
   // --- Database connection pool (Knex / pg)
   await connectDatabase();
   registerOnShutdown(disconnectDatabase);
+
+  registerOnShutdown(async () => {
+    await closeAllQueues();
+    await disconnectQueue();
+  });
 
   // --- tsyringe DI container (must run before app imports that resolve controllers)
   bootstrapDI();

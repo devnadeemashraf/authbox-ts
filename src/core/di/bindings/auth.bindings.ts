@@ -7,18 +7,25 @@ import { GoogleOAuthProvider } from '@/modules/auth/providers/google-oauth.provi
 import { OAuthProviderRegistry } from '@/modules/auth/providers/oauth-provider.registry';
 import { SessionRepository } from '@/modules/auth/repositories/session.repository';
 import { SocialProviderRepository } from '@/modules/auth/repositories/social-provider.repository';
+import { VerificationTokenRepository } from '@/modules/auth/repositories/verification-token.repository';
 import { LoginWithEmailService } from '@/modules/auth/services/login-with-email.service';
 import { LogoutWithRefreshService } from '@/modules/auth/services/logout-with-refresh.service';
 import { OAuthService } from '@/modules/auth/services/oauth.service';
+import { QueueWelcomeEmailService } from '@/modules/auth/services/queue-welcome-email.service';
 import { RefreshWithTokenService } from '@/modules/auth/services/refresh-with-token.service';
 import { RegisterWithEmailService } from '@/modules/auth/services/register-with-email.service';
+import { SendVerificationOtpService } from '@/modules/auth/services/send-verification-otp.service';
 import { TierEnforcementService } from '@/modules/auth/services/tier-enforcement.service';
+import { VerifyEmailOtpService } from '@/modules/auth/services/verify-email-otp.service';
 
 /**
  * Registers auth-module dependencies with the container.
  */
 export function registerAuthBindings(container: DependencyContainer): void {
   container.register(Tokens.Auth.SessionRepository, { useClass: SessionRepository });
+  container.register(Tokens.Auth.VerificationTokenRepository, {
+    useClass: VerificationTokenRepository,
+  });
   container.register(Tokens.Auth.SocialProviderRepository, { useClass: SocialProviderRepository });
   container.register(Tokens.Auth.TierEnforcementService, { useClass: TierEnforcementService });
   container.register(Tokens.Auth.LoginWithEmailService, { useClass: LoginWithEmailService });
@@ -36,4 +43,11 @@ export function registerAuthBindings(container: DependencyContainer): void {
     },
   });
   container.register(Tokens.Auth.OAuthService, { useClass: OAuthService });
+  container.register(Tokens.Auth.SendVerificationOtpService, {
+    useClass: SendVerificationOtpService,
+  });
+  container.register(Tokens.Auth.VerifyEmailOtpService, { useClass: VerifyEmailOtpService });
+  container.register(Tokens.Auth.QueueWelcomeEmailService, {
+    useClass: QueueWelcomeEmailService,
+  });
 }

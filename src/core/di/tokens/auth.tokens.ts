@@ -4,6 +4,7 @@
  */
 export const AuthTokens = {
   SessionRepository: Symbol('authbox.auth.SessionRepository'),
+  VerificationTokenRepository: Symbol('authbox.auth.VerificationTokenRepository'),
   SocialProviderRepository: Symbol('authbox.auth.SocialProviderRepository'),
   TierEnforcementService: Symbol('authbox.auth.TierEnforcementService'),
   LoginWithEmailService: Symbol('authbox.auth.LoginWithEmailService'),
@@ -12,4 +13,7 @@ export const AuthTokens = {
   RefreshWithTokenService: Symbol('authbox.auth.RefreshWithTokenService'),
   OAuthProviderRegistry: Symbol('authbox.auth.OAuthProviderRegistry'),
   OAuthService: Symbol('authbox.auth.OAuthService'),
+  SendVerificationOtpService: Symbol('authbox.auth.SendVerificationOtpService'),
+  VerifyEmailOtpService: Symbol('authbox.auth.VerifyEmailOtpService'),
+  QueueWelcomeEmailService: Symbol('authbox.auth.QueueWelcomeEmailService'),
 } as const;

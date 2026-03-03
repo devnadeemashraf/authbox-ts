@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 
+import { fork } from 'node:child_process';
 import cluster from 'node:cluster';
 import os from 'node:os';
+import path from 'node:path';
 
 import { bootstrap } from '@/bootstrap';
 import { env } from '@/config/env';
@@ -16,6 +18,16 @@ const workerCount = env.WEB_CONCURRENCY > 0 ? env.WEB_CONCURRENCY : os.cpus().le
 if (isPrimary) {
   logger.info({ workerCount }, 'Primary process started, spawning workers');
 
+  if (env.RUN_WORKERS && env.NODE_ENV === 'production') {
+    const workerPath = path.resolve(__dirname, 'workers', 'worker.entry.js');
+    const workerProcess = fork(workerPath, [], { stdio: 'inherit' });
+    workerProcess.on('exit', (code) => {
+      logger.warn({ code }, 'Queue worker process exited');
+    });
+  } else if (env.RUN_WORKERS) {
+    logger.info('Run workers separately in dev: pnpm run worker');
+  }
+
   for (let i = 0; i < workerCount; i++) {
     cluster.fork();
   }
@@ -24,9 +36,6 @@ if (isPrimary) {
     logger.warn({ workerId: worker.id, code }, 'Worker exited, respawning');
     cluster.fork();
   });
-
-  // TODO: Optional - spawn background job workers when env.RUN_WORKERS is true
-  // Workers (e.g. BullMQ) would run in a separate process alongside HTTP workers
 } else {
   bootstrap()
     .then((server) => {

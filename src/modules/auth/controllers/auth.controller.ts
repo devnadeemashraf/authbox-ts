@@ -8,12 +8,15 @@ import {
   oauthInitiateSchema,
   refreshSchema,
   registerSchema,
+  verifyOtpSchema,
 } from '../schemas/auth.schemas';
 import type { LoginWithEmailService } from '../services/login-with-email.service';
 import type { LogoutWithRefreshService } from '../services/logout-with-refresh.service';
 import type { OAuthService } from '../services/oauth.service';
 import type { RefreshWithTokenService } from '../services/refresh-with-token.service';
 import type { RegisterWithEmailService } from '../services/register-with-email.service';
+import type { SendVerificationOtpService } from '../services/send-verification-otp.service';
+import type { VerifyEmailOtpService } from '../services/verify-email-otp.service';
 
 import { env } from '@/config/env';
 import { BaseController } from '@/core/base';
@@ -35,6 +38,10 @@ export class AuthController extends BaseController {
     private readonly refreshWithTokenService: RefreshWithTokenService,
     @inject(Tokens.Auth.OAuthService)
     private readonly oauthService: OAuthService,
+    @inject(Tokens.Auth.SendVerificationOtpService)
+    private readonly sendVerificationOtpService: SendVerificationOtpService,
+    @inject(Tokens.Auth.VerifyEmailOtpService)
+    private readonly verifyEmailOtpService: VerifyEmailOtpService,
   ) {
     super();
   }
@@ -99,5 +106,18 @@ export class AuthController extends BaseController {
     const fragment = `access_token=${result.tokens.accessToken}&refresh_token=${result.tokens.refreshToken}`;
     const separator = redirectUrl.includes('#') ? '&' : '#';
     res.redirect(302, `${redirectUrl}${separator}${fragment}`);
+  });
+
+  sendVerificationOtp = this.asyncHandler(async (req: Request, res: Response) => {
+    const userId = this.getUserId(req);
+    const result = await this.sendVerificationOtpService.execute(userId);
+    ok(res, result);
+  });
+
+  verifyEmailOtp = this.asyncHandler(async (req: Request, res: Response) => {
+    const userId = this.getUserId(req);
+    const input = validateWithZod(verifyOtpSchema, req.body);
+    await this.verifyEmailOtpService.execute(userId, input.otp);
+    ok(res, { verified: true });
   });
 }

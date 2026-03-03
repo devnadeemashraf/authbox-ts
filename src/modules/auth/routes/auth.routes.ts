@@ -1,6 +1,7 @@
 import { type IRouter, Router } from 'express';
 import { container } from 'tsyringe';
 
+import { authGuard } from '@/core/middlewares';
 import { AuthController } from '@/modules/auth/controllers/auth.controller';
 
 const authRouter: IRouter = Router();
@@ -13,5 +14,8 @@ authRouter.post('/refresh', authController.refresh);
 
 authRouter.get('/oauth/:provider/callback', authController.oauthCallback);
 authRouter.get('/oauth/:provider', authController.oauthInitiate);
+
+authRouter.post('/email/send-verification', authGuard, authController.sendVerificationOtp);
+authRouter.post('/email/verify', authGuard, authController.verifyEmailOtp);
 
 export { authRouter };

@@ -41,3 +41,9 @@ export const oauthCallbackSchema = z.object({
 });
 
 export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>;
+
+export const verifyOtpSchema = z.object({
+  otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must be numeric'),
+});
+
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
