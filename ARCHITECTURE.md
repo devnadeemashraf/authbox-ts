@@ -146,6 +146,9 @@ Translates domain needs into database queries. Hides the ORM.
 - **Redis Caching:** Valid active `Session` IDs and dynamic `Tier` limits are cached in Redis to prevent hitting PostgreSQL on every authenticated request.
 - **Background Jobs:** Non-blocking tasks (sending emails) are handled by a separate queue worker process (e.g., BullMQ).
 
+6. Strictly abiding by **SOLID** & **DRY** rules.
+7. Enforces Software Design Patterns such as - **Structural**, **Behavioural** & **Creational**
+
 ---
 
 ## 5. LLM Context Instructions
