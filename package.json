@@ -11,7 +11,7 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "type-check": "tsc --noEmit",
-    "test": "jest --passWithNoTests",
+    "test": "jest --verbose --passWithNoTests",
     "prepare": "pnpm type-check && husky",
     "db:migrate": "knex --knexfile src/config/knexfile.ts migrate:latest",
     "db:migrate:make": "knex --knexfile src/config/knexfile.ts migrate:make -x ts",
