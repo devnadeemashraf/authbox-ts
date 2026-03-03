@@ -59,9 +59,13 @@ src/
 │       └── repositories/
 │           └── user.repository.ts
 ├── workers/                    # Background job processors (BullMQ)
-│   ├── definitions/            # Worker configs per queue
+│   ├── definitions/            # Worker configs (queue, processor, concurrency)
+│   │   ├── index.ts            # Exports WORKER_DEFINITIONS
+│   │   └── *.worker.ts
 │   ├── processors/             # Job logic (e.g., SendWelcomeEmail)
-│   ├── worker.bootstrap.ts     # Creates workers, wires events
+│   │   └── *.processor.ts
+│   ├── worker.types.ts         # WorkerContext, WorkerDefinition, JobProcessor
+│   ├── worker.bootstrap.ts     # Creates workers, wires events, shutdown
 │   └── worker.entry.ts         # Entry point
 ├── app.ts                      # Express application assembly
 └── server.ts                   # Entry point: cluster setup, reflect-metadata
@@ -138,11 +142,37 @@ Translates domain needs into database queries. Hides the ORM.
 
 ---
 
-## 4. Engineering Standards & DX Rules
+## 4. Workers (Background Jobs)
+
+BullMQ workers process jobs from Redis queues. Structure follows PDDA and mirrors the queue registry pattern.
+
+### Structure
+
+- **definitions/** — Worker configs per queue (queue name, processor factory, concurrency, label)
+- **processors/** — Job logic; each processor is a factory `(deps) => (job) => Promise<void>`
+- **worker.bootstrap.ts** — Creates workers from definitions, wires events, handles shutdown
+- **worker.entry.ts** — Thin entry: bootstrap + run
+
+### Adding a Worker
+
+1. Add queue name to `infrastructure/queue/queue-names.ts`
+2. Create processor in `processors/<name>.processor.ts`
+3. Create definition in `definitions/<name>.worker.ts`
+4. Add definition to `WORKER_DEFINITIONS` in `definitions/index.ts`
+
+### Run
+
+```bash
+pnpm run worker
+```
+
+---
+
+## 5. Engineering Standards & DX Rules
 
 1. **Line Limits:** Core logic functions max out at **20 lines**. Files max out at **200-300 lines**.
 2. **Early Returns:** Validate negative conditions first. Avoid nested `if/else` hell.
-3. **Bitmask Authorization:** Roles are checked using bitwise operators (`(user.permissions & Permissions.EDIT) !== 0`) in Express middleware, taking $O(1)$ time and requiring zero database joins.
+3. **Authorization:** Roles are checked in Express middleware, taking $O(1)$ time and requiring zero database joins.
 4. **Error Handling:** Never throw a generic `Error`. Throw custom classes (e.g., `ConflictError`) so the global middleware maps them to proper HTTP status codes.
 5. **Performance:**
 
@@ -155,7 +185,7 @@ Translates domain needs into database queries. Hides the ORM.
 
 ---
 
-## 5. LLM Context Instructions
+## 6. LLM Context Instructions
 
 _(Paste this to any LLM when generating code for this project)_
 
