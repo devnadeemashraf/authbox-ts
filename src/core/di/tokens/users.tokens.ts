@@ -4,4 +4,6 @@
  */
 export const UsersTokens = {
   UserRepository: Symbol('authbox.users.UserRepository'),
+  GetMeService: Symbol('authbox.users.GetMeService'),
+  UpdateMeService: Symbol('authbox.users.UpdateMeService'),
 } as const;

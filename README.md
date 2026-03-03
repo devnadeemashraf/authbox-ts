@@ -58,6 +58,10 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 - **Password Reset** — OTP ownership verification, 10-min single-use reset token
 - **Sessions** — JWT access + refresh, session storage, tier-based limits, list & revoke
 
+### Users
+
+- **Profile** — GET/PATCH /me with username (3–30 chars, alphanumeric + underscore, unique)
+
 ### Security
 
 - **Argon2id** — Password hashing

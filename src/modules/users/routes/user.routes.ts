@@ -1,10 +1,13 @@
 import { type IRouter, Router } from 'express';
+import { container } from 'tsyringe';
 
 import { authGuard } from '@/core/middlewares';
+import { UserController } from '@/modules/users/controllers/user.controller';
 
 const userRouter: IRouter = Router();
+const userController = container.resolve(UserController);
 
-// Stub: GET /me returns 401 until UserController is implemented (authGuard blocks all)
-userRouter.get('/me', authGuard, (_req, res) => res.json({}));
+userRouter.get('/me', authGuard, userController.getMe);
+userRouter.patch('/me', authGuard, userController.patchMe);
 
 export { userRouter };
