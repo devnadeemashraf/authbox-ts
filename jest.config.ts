@@ -5,7 +5,8 @@ const config: Config = {
   testEnvironment: "node",
   rootDir: ".",
   roots: ["<rootDir>/src"],
-  testMatch: ["**/__tests__/**/*.test.ts", "**/tests/**/*.test.ts"],
+  testMatch: ["**/__tests__/**/*.test.ts", "**/*.test.ts"],
+  testPathIgnorePatterns: ["/node_modules/", "/dist/"],
   setupFiles: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
@@ -17,13 +18,14 @@ const config: Config = {
   },
   collectCoverageFrom: [
     "src/**/*.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.spec.ts",
     "!src/__tests__/**",
-    "!src/**/tests/**",
+    "!src/**/__tests__/**",
     "!src/scripts/**",
     "!src/server.ts",
   ],
+  testTimeout: 10000,
   forceExit: true,
   detectOpenHandles: true,
 };
