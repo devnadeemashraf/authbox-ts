@@ -1,18 +1,18 @@
 import { randomUUID } from 'node:crypto';
 
-import * as argon2 from 'argon2';
 import type { Knex } from 'knex';
 import { inject, injectable } from 'tsyringe';
 
 import { SessionRepository } from '../repositories/session.repository';
 import type { LoginInput } from '../schemas/auth.schemas';
+import { TierEnforcementService } from './tier-enforcement.service';
 
 import { BaseService } from '@/core/base';
-import { TIER_BY_ID } from '@/core/config/tiers.config';
 import { Tokens } from '@/core/di/tokens';
-import { ForbiddenError, UnauthorizedError } from '@/core/errors/client-errors';
+import { UnauthorizedError } from '@/core/errors/client-errors';
 import type { User } from '@/core/interfaces/user.types';
 import { signAccessToken, signRefreshToken } from '@/core/security/jwt';
+import { PasswordService } from '@/core/security/password.service';
 import { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const INVALID_CREDENTIALS = 'Invalid email or password';
@@ -28,6 +28,8 @@ export class LoginWithEmailService extends BaseService {
     @inject(Tokens.Infrastructure.Database) db: Knex,
     @inject(UserRepository) private readonly userRepo: UserRepository,
     @inject(SessionRepository) private readonly sessionRepo: SessionRepository,
+    @inject(PasswordService) private readonly passwordService: PasswordService,
+    @inject(TierEnforcementService) private readonly tierEnforcement: TierEnforcementService,
   ) {
     super(db);
   }
@@ -45,20 +47,12 @@ export class LoginWithEmailService extends BaseService {
       throw new UnauthorizedError({ message: INVALID_CREDENTIALS });
     }
 
-    const valid = await argon2.verify(user.passwordHash, input.password);
+    const valid = await this.passwordService.verify(user.passwordHash, input.password);
     if (!valid) {
       throw new UnauthorizedError({ message: INVALID_CREDENTIALS });
     }
 
-    const tier = TIER_BY_ID[user.tierId] ?? TIER_BY_ID[1];
-    const maxSessions = tier.features.auth.maxSessions;
-    const activeCount = await this.sessionRepo.countActiveByUserId(user.id);
-
-    if (activeCount >= maxSessions) {
-      throw new ForbiddenError({
-        message: `Maximum ${maxSessions} active session(s) allowed. Please revoke one before logging in.`,
-      });
-    }
+    await this.tierEnforcement.enforceSessionLimit(user);
 
     const sessionId = randomUUID();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
