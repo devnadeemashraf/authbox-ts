@@ -63,6 +63,14 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 - **Profile** — GET/PATCH /me with username (3–30 chars, alphanumeric + underscore, unique)
 - **Avatar** — Presigned URL upload (MinIO/S3), shareable read link, delete. Toggle via `FILE_UPLOADS_ENABLED`
 
+### Subscriptions (Stripe)
+
+- **Checkout** — POST /api/v1/subscriptions/checkout → Stripe Checkout URL for free → premium upgrade
+- **Confirm session** — POST /api/v1/subscriptions/confirm-session (local dev fallback when stripe listen isn't running)
+- **Status** — GET /api/v1/subscriptions/status → current subscription + payment history
+- **Webhook** — POST /api/v1/webhooks/stripe (Stripe signature verified; tier upgrade happens here)
+- **Workers** — Renewal reminder (7 days before), demotion (7 days after grace period). See [docs/PAYMENT_SUBSCRIPTION_DESIGN.md](docs/PAYMENT_SUBSCRIPTION_DESIGN.md)
+
 ### Security
 
 - **Argon2id** — Password hashing
@@ -71,7 +79,7 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 
 ### Infrastructure
 
-- **Background Jobs** — BullMQ workers for email verification, welcome emails, password reset
+- **Background Jobs** — BullMQ workers for email verification, welcome emails, password reset, subscription renewal reminder, subscription demotion
 - **Separate Queues** — Each use case has its own queue; no cross-interference
 - **Health Check** — `/health` for load balancers and k8s probes
 
@@ -80,13 +88,14 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 ## Using This as a Boilerplate
 
 1. **Fork or clone** — Start from a clean slate.
-2. **Configure env** — Copy `.env.example`, set `JWT_SECRET`, `FRONTEND_URL`, `BACKEND_URL`, DB credentials.
+2. **Configure env** — Copy `.env.example`, set `JWT_SECRET`, `FRONTEND_URL`, `BACKEND_URL`, DB credentials. For subscriptions, add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PREMIUM_PRICE_ID`.
 3. **Run migrations** — `pnpm db:migrate`.
 4. **Add your modules** — Follow the same pattern: `modules/<domain>/` with `controllers/`, `services/`, `repositories/`, `routes/`, `schemas/`.
 5. **Extend workers** — Add a queue name, processor, and worker definition. See [ARCHITECTURE.md](ARCHITECTURE.md#4-workers-background-jobs).
 6. **Wire OAuth** — Add provider IDs for GitHub, Twitter in env; register providers in the OAuth registry.
 7. **Customize** — Replace `ConsoleMailer` with Nodemailer/SendGrid for production emails.
 8. **File uploads (optional)** — Set `FILE_UPLOADS_ENABLED=true`, create bucket `authbox-uploads`, configure `S3_ENDPOINT` (or omit for AWS). See avatar endpoints at `/docs`.
+9. **Subscriptions (optional)** — Set Stripe env vars. For local dev, use `stripe listen --forward-to localhost:3000/api/v1/webhooks/stripe` or call `POST /api/v1/subscriptions/confirm-session` after checkout redirect. See [docs/PAYMENT_SUBSCRIPTION_DESIGN.md](docs/PAYMENT_SUBSCRIPTION_DESIGN.md).
 
 The architecture is designed so you can add features without refactoring. Controllers stay thin; services hold logic; repositories handle data.
 
@@ -142,6 +151,7 @@ cp .env.example .env
 # Edit .env: JWT_SECRET, FRONTEND_URL, BACKEND_URL, POSTGRES_PASSWORD
 
 pnpm db:migrate
+pnpm db:seed
 pnpm dev
 ```
 
@@ -180,6 +190,7 @@ pnpm worker
 
 2. **Database**
    - Run migrations: `pnpm db:migrate`
+   - Run seeds for tiers: `pnpm db:seed`
    - Ensure connection pool fits your load (`DATABASE_POOL_MAX`)
 
 3. **Redis**
@@ -197,6 +208,10 @@ pnpm worker
 6. **Reverse Proxy**
    - Put NGINX/Traefik in front
    - Set `TRUST_PROXY=true` if behind a proxy
+
+7. **Stripe (if using subscriptions)**
+   - Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PREMIUM_PRICE_ID`
+   - Configure webhook endpoint in Stripe Dashboard: `https://your-api.com/api/v1/webhooks/stripe`
 
 ### Docker (Example)
 
@@ -225,6 +240,7 @@ Interactive API docs (Swagger UI) are available at **`/docs`** when the server i
 
 - **API Docs** — Available at `/docs` when the server is running (Swagger UI)
 - [ARCHITECTURE.md](ARCHITECTURE.md) — PDDA, folder structure, workers, layer breakdown
+- [docs/PAYMENT_SUBSCRIPTION_DESIGN.md](docs/PAYMENT_SUBSCRIPTION_DESIGN.md) — Stripe flow, security model, renewal/demotion
 - [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Community guidelines
 
