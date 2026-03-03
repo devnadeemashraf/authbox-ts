@@ -41,7 +41,7 @@ export class AppError extends Error {
       message: this.message,
       requestId: this.requestId,
       details: this.details,
-      stack: env.isDev ? this.stack : undefined,
+      stack: env.NODE_ENV !== 'production' ? this.stack : undefined,
     };
   }
 }

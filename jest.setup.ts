@@ -10,6 +10,19 @@ process.env.POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD ?? 'test';
 
 import 'reflect-metadata';
 
+// Mock logger to avoid Pino transport/spawn keeping Jest open
+const noop = () => {};
+const loggerMock = {
+  fatal: noop,
+  error: noop,
+  warn: noop,
+  info: noop,
+  debug: noop,
+  trace: noop,
+  child: () => loggerMock,
+};
+jest.mock('./src/core/logger', () => ({ logger: loggerMock }));
+
 // Bootstrap DI before any test imports the app (which resolves AuthController, etc.)
 import { bootstrapDI } from './src/core/di/container';
 bootstrapDI();

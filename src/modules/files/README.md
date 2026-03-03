@@ -32,7 +32,7 @@ xhr.send(file);
 export const DOCUMENT_UPLOAD_CONFIG: FileUploadConfig = {
   allowedMimeTypes: ['application/pdf', 'image/jpeg'],
   maxSizeBytes: 10 * 1024 * 1024,
-  bucket: env.MINIO_BUCKET,
+  bucket: env.S3_BUCKET,
   keyPrefix: 'documents/',
   uploadUrlExpiresIn: 15 * 60,
   readUrlExpiresIn: 24 * 60 * 60,

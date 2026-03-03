@@ -12,20 +12,23 @@ import { env } from '@/config/env';
 let s3Client: S3Client | null = null;
 
 /**
- * Lazily creates S3 client for MinIO/S3-compatible storage.
+ * Lazily creates S3 client for AWS S3 or S3-compatible storage (MinIO, etc.).
  * Only instantiated when FILE_UPLOADS_ENABLED is true.
  */
 export function getS3Client(): S3Client {
   if (!s3Client) {
-    s3Client = new S3Client({
-      endpoint: env.MINIO_ENDPOINT,
-      region: env.MINIO_REGION,
+    const config: ConstructorParameters<typeof S3Client>[0] = {
+      region: env.S3_REGION,
       credentials: {
-        accessKeyId: env.MINIO_ROOT_USER,
-        secretAccessKey: env.MINIO_ROOT_PASSWORD,
+        accessKeyId: env.S3_ACCESS_KEY_ID,
+        secretAccessKey: env.S3_SECRET_ACCESS_KEY,
       },
-      forcePathStyle: true, // Required for MinIO
-    });
+    };
+    if (env.S3_ENDPOINT) {
+      config.endpoint = env.S3_ENDPOINT;
+      config.forcePathStyle = true; // Required for MinIO
+    }
+    s3Client = new S3Client(config);
   }
   return s3Client;
 }

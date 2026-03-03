@@ -101,17 +101,16 @@ export const env = cleanEnv(process.env, {
   /** Empty = no auth (common for local Redis) */
   REDIS_PASSWORD: str({ default: '' }),
 
-  // S3-compatible
+  // S3-compatible object store (AWS S3, MinIO, etc.)
   /** When false, file upload endpoints return 503 */
   FILE_UPLOADS_ENABLED: bool({ default: false }),
-  /** MinIO/S3 endpoint (e.g. http://localhost:9000) */
-  MINIO_ENDPOINT: str({ default: 'http://localhost:9000' }),
-  /** Bucket for uploads; must exist (create via mc or MinIO console) */
-  MINIO_BUCKET: str({ default: 'authbox-uploads' }),
-  MINIO_ROOT_USER: str({ default: 'authbox_admin' }),
-  MINIO_ROOT_PASSWORD: str({ default: 'authbox_password' }),
-  /** Region for S3 client (MinIO accepts any) */
-  MINIO_REGION: str({ default: 'us-east-1' }),
+  /** Endpoint URL. Empty = AWS default. Set for MinIO/custom (e.g. http://localhost:9000) */
+  S3_ENDPOINT: str({ default: '' }),
+  /** Bucket for uploads; must exist */
+  S3_BUCKET: str({ default: 'authbox-uploads' }),
+  S3_ACCESS_KEY_ID: str({ default: 'authbox_admin' }),
+  S3_SECRET_ACCESS_KEY: str({ default: 'authbox_password' }),
+  S3_REGION: str({ default: 'us-east-1' }),
 
   // Hardening
   /** Set to true if behind a reverse proxy (NGINX, Traefik, etc.) */

@@ -86,7 +86,7 @@ Most boilerplates are either too minimal (no OAuth, no queues) or too opinionate
 5. **Extend workers** — Add a queue name, processor, and worker definition. See [ARCHITECTURE.md](ARCHITECTURE.md#4-workers-background-jobs).
 6. **Wire OAuth** — Add provider IDs for GitHub, Twitter in env; register providers in the OAuth registry.
 7. **Customize** — Replace `ConsoleMailer` with Nodemailer/SendGrid for production emails.
-8. **File uploads (optional)** — Set `FILE_UPLOADS_ENABLED=true`, create MinIO bucket `authbox-uploads`, configure `MINIO_ENDPOINT`. See avatar endpoints at `/docs`.
+8. **File uploads (optional)** — Set `FILE_UPLOADS_ENABLED=true`, create bucket `authbox-uploads`, configure `S3_ENDPOINT` (or omit for AWS). See avatar endpoints at `/docs`.
 
 The architecture is designed so you can add features without refactoring. Controllers stay thin; services hold logic; repositories handle data.
 

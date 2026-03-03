@@ -11,7 +11,7 @@ import { env } from '@/config/env';
 type LoggerTransport = TransportSingleOptions | TransportMultiOptions | TransportPipelineOptions;
 
 function getLoggerTransport(): LoggerTransport | undefined {
-  if (!env.isDev) return undefined;
+  if (env.NODE_ENV !== 'development') return undefined;
 
   return {
     target: 'pino-pretty',
