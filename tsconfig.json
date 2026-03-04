@@ -27,6 +27,7 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
+      "@tests/*": ["tests/*"],
       "@/*": ["src/*"],
       "@config/*": ["src/config/*"],
       "@core/*": ["src/core/*"],

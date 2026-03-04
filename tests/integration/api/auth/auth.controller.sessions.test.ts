@@ -1,6 +1,6 @@
-import { AUTH_BASE, validAccessToken } from './auth.controller.helpers';
+import { getTestApp } from '@tests/support/setup/app';
 
-import { getTestApp } from '@/__tests__/setup/app';
+import { AUTH_BASE, validAccessToken } from './helpers';
 
 describe('AuthController GET /sessions (protected)', () => {
   it('returns 401 when no Authorization header', async () => {

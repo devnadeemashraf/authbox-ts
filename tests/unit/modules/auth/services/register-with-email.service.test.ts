@@ -1,7 +1,7 @@
-import { createMockDb } from './auth.service.helpers';
-
 import { Permissions } from '@/core/security/permissions';
 import { RegisterWithEmailService } from '@/modules/auth/services/register-with-email.service';
+
+import { createMockDb } from './helpers';
 
 const DEFAULT_PERMISSIONS = Permissions.UPDATE_PROFILE | Permissions.UPLOAD_AVATAR;
 

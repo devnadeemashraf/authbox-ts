@@ -1,6 +1,6 @@
-import { createMockDb } from './auth.service.helpers';
-
 import { VerifyEmailOtpService } from '@/modules/auth/services/verify-email-otp.service';
+
+import { createMockDb } from './helpers';
 
 describe('VerifyEmailOtpService', () => {
   const mockVerificationTokenRepo = {

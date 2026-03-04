@@ -174,7 +174,22 @@ pnpm worker
 | `pnpm db:seed`             | Run seeds               |
 | `pnpm type-check`          | TypeScript check        |
 | `pnpm lint`                | ESLint                  |
-| `pnpm test`                | Jest                    |
+| `pnpm test`                | Jest (all tests)        |
+| `pnpm test:coverage`       | Jest with coverage report |
+| `pnpm test:unit`           | Unit tests only         |
+| `pnpm test:integration`    | Integration tests only  |
+
+### Testing
+
+Tests live under `tests/` with `unit/` (isolated logic, mocked deps), `integration/` (HTTP API via supertest), and `e2e/` (placeholder for full-stack).
+
+```bash
+pnpm test                  # Run all tests
+pnpm test --coverage       # With coverage
+pnpm test:coverage        # Same, explicit script
+```
+
+Coverage is written to `coverage/lcov-report/index.html`. See [ARCHITECTURE.md#7-testing](ARCHITECTURE.md#7-testing) for the test structure and when to use each type.
 
 ---
 

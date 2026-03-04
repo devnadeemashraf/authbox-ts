@@ -1,8 +1,8 @@
-import { createMockDb } from './auth.service.helpers';
-
-import { UserFactory } from '@/__tests__/factories/user.factory';
+import { UserFactory } from '@tests/support/factories/user.factory';
 import { signRefreshToken } from '@/core/security/jwt';
 import { RefreshWithTokenService } from '@/modules/auth/services/refresh-with-token.service';
+
+import { createMockDb } from './helpers';
 
 describe('RefreshWithTokenService', () => {
   const mockUserRepo = {

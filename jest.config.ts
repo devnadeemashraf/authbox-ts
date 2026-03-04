@@ -3,12 +3,19 @@ import type { Config } from "jest";
 const config: Config = {
   preset: "ts-jest",
   testEnvironment: "node",
+  transform: {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      { tsconfig: "tsconfig.jest.json" },
+    ],
+  },
   rootDir: ".",
-  roots: ["<rootDir>/src"],
-  testMatch: ["**/__tests__/**/*.test.ts", "**/*.test.ts"],
+  roots: ["<rootDir>/tests"],
+  testMatch: ["**/*.test.ts"],
   testPathIgnorePatterns: ["/node_modules/", "/dist/"],
   setupFiles: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@/(.*)$": "<rootDir>/src/$1",
     "^@config/(.*)$": "<rootDir>/src/config/$1",
     "^@core/(.*)$": "<rootDir>/src/core/$1",
@@ -20,8 +27,6 @@ const config: Config = {
     "src/**/*.ts",
     "!src/**/*.test.ts",
     "!src/**/*.spec.ts",
-    "!src/__tests__/**",
-    "!src/**/__tests__/**",
     "!src/scripts/**",
     "!src/server.ts",
   ],

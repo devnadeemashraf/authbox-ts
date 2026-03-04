@@ -195,3 +195,85 @@ pnpm run worker
 _(Paste this to any LLM when generating code for this project)_
 
 > "Act as a Senior Backend Engineer. Adhere strictly to the 'Pragmatic Domain-Driven Architecture (PDDA)'. Use Node.js, Express, TypeScript, and `tsyringe`. Use `@injectable()` and constructor injection. Files are grouped by role within modules (e.g., `modules/auth/services/`). Shared interfaces live in `core/interfaces/` (Shared Kernel). Controllers handle ONLY HTTP semantics (<50 lines). Services contain ALL business logic. Repositories handle database access. Enforce strict early returns, max 20 lines per core function, and throw custom domain errors."
+
+---
+
+## 7. Testing
+
+Tests live in a dedicated `tests/` directory with clear separation by type: **unit**, **integration**, and **e2e**.
+
+### Test Pyramid
+
+```mermaid
+flowchart TB
+    subgraph tests [tests/]
+        unit[unit/]
+        integration[integration/]
+        e2e[e2e/]
+        support[support/]
+
+        unit --> unitAuth[modules/auth/services/]
+        integration --> intAuth[api/auth/]
+        support --> setup[setup/]
+        support --> factories[factories/]
+        support --> mocks[mocks/]
+    end
+
+    subgraph src [src/]
+        app[app.ts]
+        modules[modules/]
+    end
+
+    integration -->|getTestApp| app
+    unit -->|UserFactory| factories
+```
+
+### Directory Layout
+
+```text
+tests/
+├── unit/                      # Isolated logic, mocked dependencies
+│   └── modules/
+│       └── auth/
+│           └── services/      # *.service.test.ts + helpers
+├── integration/               # API endpoints, real app + DI
+│   └── api/
+│       └── auth/              # auth.controller.*.test.ts + helpers
+├── e2e/                       # Placeholder (full stack, real DB/Redis)
+│   └── .gitkeep
+└── support/                   # Shared across all test types
+    ├── setup/
+    │   ├── app.ts             # getTestApp()
+    │   └── app.test.ts        # Setup/infra sanity tests
+    ├── factories/
+    │   ├── user.factory.ts
+    │   └── user.factory.test.ts
+    ├── mocks/
+    │   └── logger.mock.ts
+    └── db.ts                  # Test DB utilities (for future e2e/integration)
+```
+
+### Test Type Definitions
+
+| Type            | Scope                 | Dependencies                | Example                                              |
+| --------------- | --------------------- | --------------------------- | ---------------------------------------------------- |
+| **Unit**        | Single class/function | All external deps mocked    | `LoginWithEmailService` with mocked `UserRepository` |
+| **Integration** | HTTP layer + DI       | Real app, optional DB/Redis | `POST /api/v1/auth/login` via supertest              |
+| **E2E**         | Full stack            | Real DB, Redis, workers     | (Future) Full user journey                           |
+
+### When to Use Each Type
+
+- **Unit:** New services get `tests/unit/modules/<domain>/services/<service>.test.ts`. Mock all repositories and external dependencies.
+- **Integration:** New API surface gets `tests/integration/api/<domain>/<route>.test.ts`. Use `getTestApp()` from `@tests/support/setup/app`.
+- **E2E:** Placeholder in `tests/e2e/` for future full-stack scenarios.
+
+### Running Tests
+
+| Command                | Description                               |
+| ---------------------- | ----------------------------------------- |
+| `pnpm test`            | Run all tests                             |
+| `pnpm test:coverage`   | Run tests with coverage report             |
+| `pnpm test:unit`       | Run only unit tests                       |
+| `pnpm test:integration`| Run only integration tests                |
+
+Coverage output is written to `coverage/lcov-report/index.html`. The `collectCoverageFrom` config targets `src/**/*.ts` (production code only). See `jest.config.ts` for thresholds or exclusions.

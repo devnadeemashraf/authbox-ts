@@ -1,7 +1,7 @@
-import { createMockDb } from './auth.service.helpers';
-
 import { signRefreshToken } from '@/core/security/jwt';
 import { LogoutWithRefreshService } from '@/modules/auth/services/logout-with-refresh.service';
+
+import { createMockDb } from './helpers';
 
 describe('LogoutWithRefreshService', () => {
   const mockSessionRepo = {

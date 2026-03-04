@@ -1,6 +1,6 @@
-import { AUTH_BASE } from './auth.controller.helpers';
+import { getTestApp } from '@tests/support/setup/app';
 
-import { getTestApp } from '@/__tests__/setup/app';
+import { AUTH_BASE } from './helpers';
 
 describe('AuthController POST /login', () => {
   it('returns 422 for invalid email', async () => {

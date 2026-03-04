@@ -1,6 +1,6 @@
-import { AUTH_BASE, validAccessToken, validRefreshToken } from './auth.controller.helpers';
+import { getTestApp } from '@tests/support/setup/app';
 
-import { getTestApp } from '@/__tests__/setup/app';
+import { AUTH_BASE, validAccessToken, validRefreshToken } from './helpers';
 
 describe('AuthController POST /refresh', () => {
   it('returns 422 for empty body', async () => {

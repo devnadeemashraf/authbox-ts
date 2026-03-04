@@ -1,7 +1,7 @@
-import { createMockDb } from './auth.service.helpers';
-
-import { UserFactory } from '@/__tests__/factories/user.factory';
+import { UserFactory } from '@tests/support/factories/user.factory';
 import { LoginWithEmailService } from '@/modules/auth/services/login-with-email.service';
+
+import { createMockDb } from './helpers';
 
 describe('LoginWithEmailService', () => {
   const mockUserRepo = {
