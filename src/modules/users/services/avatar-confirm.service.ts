@@ -10,6 +10,7 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from '@/core/errors/client-errors';
+import type { UserCache } from '@/infrastructure/cache/user-cache';
 import type { FileUploadService } from '@/modules/files/services/file-upload.service';
 
 /**
@@ -19,6 +20,7 @@ import type { FileUploadService } from '@/modules/files/services/file-upload.ser
 export class AvatarConfirmService {
   constructor(
     @inject(Tokens.Users.UserRepository) private readonly userRepo: UserRepository,
+    @inject(Tokens.Cache.UserCache) private readonly userCache: UserCache,
     @inject(Tokens.Files.FileUploadService)
     private readonly fileUploadService: FileUploadService,
   ) {}
@@ -45,6 +47,7 @@ export class AvatarConfirmService {
     }
 
     await this.userRepo.update(userId, { avatarUrl: objectKey });
+    await this.userCache.invalidateUser(userId, user.email);
 
     const { readUrl } = await this.fileUploadService.generatePresignedReadUrl(
       AVATAR_UPLOAD_CONFIG,

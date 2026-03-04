@@ -6,11 +6,15 @@ describe('RevokeSessionService', () => {
     delete: jest.fn().mockResolvedValue(true),
   };
 
+  const mockSessionCache = {
+    removeSession: jest.fn().mockResolvedValue(undefined),
+  };
+
   let service: RevokeSessionService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new RevokeSessionService(mockSessionRepo as never);
+    service = new RevokeSessionService(mockSessionRepo as never, mockSessionCache as never);
   });
 
   it('throws NotFoundError when session does not exist', async () => {

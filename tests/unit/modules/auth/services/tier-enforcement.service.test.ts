@@ -5,23 +5,29 @@ describe('TierEnforcementService', () => {
     countActiveByUserId: jest.fn(),
   };
 
+  const mockSessionCache = {
+    countActiveByUserId: jest.fn().mockResolvedValue(0),
+  };
+
   let service: TierEnforcementService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new TierEnforcementService(mockSessionRepo as never);
+    mockSessionCache.countActiveByUserId.mockResolvedValue(0);
+    service = new TierEnforcementService(mockSessionRepo as never, mockSessionCache as never);
   });
 
   it('resolves when active count is below limit', async () => {
+    mockSessionCache.countActiveByUserId.mockResolvedValue(0);
     mockSessionRepo.countActiveByUserId.mockResolvedValue(0);
 
     await service.enforceSessionLimit({ id: 'user-1', tierId: 1 });
 
-    expect(mockSessionRepo.countActiveByUserId).toHaveBeenCalledWith('user-1');
+    expect(mockSessionCache.countActiveByUserId).toHaveBeenCalledWith('user-1');
   });
 
   it('throws ForbiddenError when at max sessions (free tier = 1)', async () => {
-    mockSessionRepo.countActiveByUserId.mockResolvedValue(1);
+    mockSessionCache.countActiveByUserId.mockResolvedValue(1);
 
     await expect(service.enforceSessionLimit({ id: 'user-1', tierId: 1 })).rejects.toMatchObject({
       statusCode: 403,
@@ -30,7 +36,7 @@ describe('TierEnforcementService', () => {
   });
 
   it('throws ForbiddenError when premium user at limit (3)', async () => {
-    mockSessionRepo.countActiveByUserId.mockResolvedValue(3);
+    mockSessionCache.countActiveByUserId.mockResolvedValue(3);
 
     await expect(service.enforceSessionLimit({ id: 'user-1', tierId: 2 })).rejects.toMatchObject({
       statusCode: 403,
@@ -39,7 +45,7 @@ describe('TierEnforcementService', () => {
   });
 
   it('uses tier 1 defaults when tierId unknown', async () => {
-    mockSessionRepo.countActiveByUserId.mockResolvedValue(1);
+    mockSessionCache.countActiveByUserId.mockResolvedValue(1);
 
     await expect(service.enforceSessionLimit({ id: 'user-1', tierId: 99 })).rejects.toMatchObject({
       message: expect.stringContaining('Maximum 1 active session'),

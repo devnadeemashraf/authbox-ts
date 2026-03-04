@@ -15,12 +15,29 @@ describe('RefreshWithTokenService', () => {
     delete: jest.fn().mockResolvedValue(true),
   };
 
+  const mockSessionCache = {
+    getSessionUserId: jest.fn().mockResolvedValue(null),
+    removeSession: jest.fn().mockResolvedValue(undefined),
+    addSession: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const mockUserCache = {
+    getById: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+  };
+
   let service: RefreshWithTokenService;
   const mockDb = createMockDb();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new RefreshWithTokenService(mockDb, mockUserRepo as never, mockSessionRepo as never);
+    service = new RefreshWithTokenService(
+      mockDb,
+      mockUserRepo as never,
+      mockSessionRepo as never,
+      mockSessionCache as never,
+      mockUserCache as never,
+    );
   });
 
   it('throws UnauthorizedError when refresh token is invalid', async () => {

@@ -11,6 +11,7 @@ import { TIER_BY_ID } from '@/core/config/tiers.config';
 import { Tokens } from '@/core/di/tokens';
 import { BadRequestError, ServiceUnavailableError } from '@/core/errors';
 import { logger } from '@/core/logger';
+import type { UserCache } from '@/infrastructure/cache/user-cache';
 
 const PREMIUM_TIER_ID =
   Number(Object.entries(TIER_BY_ID).find(([, t]) => t.name === 'premium')?.[0]) || 2;
@@ -32,6 +33,7 @@ export class HandleStripeWebhookService {
     @inject(Tokens.Subscriptions.PaymentRepository) private readonly paymentRepo: PaymentRepository,
     @inject(Tokens.Subscriptions.ProcessedStripeEventRepository)
     private readonly processedEventRepo: ProcessedStripeEventRepository,
+    @inject(Tokens.Cache.UserCache) private readonly userCache: UserCache,
   ) {
     if (env.STRIPE_SECRET_KEY) {
       this.stripe = new Stripe(env.STRIPE_SECRET_KEY);
@@ -152,6 +154,8 @@ export class HandleStripeWebhookService {
         await trx('users').where('id', userId).update({ tierId: PREMIUM_TIER_ID });
       }
     });
+
+    if (isActive) await this.userCache.invalidateUser(userId);
   }
 
   /** Extracts period from subscription. Stripe API 2025+ uses items.data[].current_period_* */
@@ -215,6 +219,8 @@ export class HandleStripeWebhookService {
         await trx('users').where('id', existing.userId).update({ tierId: FREE_TIER_ID });
       }
     });
+
+    await this.userCache.invalidateUser(existing.userId);
   }
 
   private async handleSubscriptionDeleted(stripeSub: Stripe.Subscription): Promise<void> {
@@ -227,6 +233,8 @@ export class HandleStripeWebhookService {
         .update({ status: 'canceled', updatedAt: new Date() });
       await trx('users').where('id', existing.userId).update({ tierId: FREE_TIER_ID });
     });
+
+    await this.userCache.invalidateUser(existing.userId);
   }
 
   private async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {

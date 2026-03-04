@@ -1,4 +1,5 @@
 import { AuthTokens } from './auth.tokens';
+import { CacheTokens } from './cache.tokens';
 import { FilesTokens } from './files.tokens';
 import { InfrastructureTokens } from './infrastructure.tokens';
 import { SecurityTokens } from './security.tokens';
@@ -10,6 +11,7 @@ import { UsersTokens } from './users.tokens';
  */
 export const Tokens = {
   Infrastructure: InfrastructureTokens,
+  Cache: CacheTokens,
   Security: SecurityTokens,
   Auth: AuthTokens,
   Users: UsersTokens,

@@ -8,12 +8,21 @@ describe('LogoutWithRefreshService', () => {
     delete: jest.fn().mockResolvedValue(true),
   };
 
+  const mockSessionCache = {
+    getSessionUserId: jest.fn().mockResolvedValue(null),
+    removeSession: jest.fn().mockResolvedValue(undefined),
+  };
+
   let service: LogoutWithRefreshService;
   const mockDb = createMockDb();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new LogoutWithRefreshService(mockDb, mockSessionRepo as never);
+    service = new LogoutWithRefreshService(
+      mockDb,
+      mockSessionRepo as never,
+      mockSessionCache as never,
+    );
   });
 
   it('does not call sessionRepo.delete when token is invalid', async () => {

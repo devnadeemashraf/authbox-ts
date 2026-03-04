@@ -5,6 +5,8 @@ import { BaseService } from '@/core/base';
 import { Tokens } from '@/core/di/tokens';
 import { BadRequestError, UnauthorizedError } from '@/core/errors/client-errors';
 import type { PasswordHasher } from '@/core/security/password-hasher';
+import type { SessionCache } from '@/infrastructure/cache/session-cache';
+import type { UserCache } from '@/infrastructure/cache/user-cache';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 import type { ChangePasswordInput } from '@/modules/users/schemas/user.schemas';
 
@@ -19,6 +21,8 @@ export class ChangePasswordService extends BaseService {
     @inject(Tokens.Infrastructure.Database) db: Knex,
     @inject(Tokens.Users.UserRepository) private readonly userRepo: UserRepository,
     @inject(Tokens.Security.PasswordHasher) private readonly passwordHasher: PasswordHasher,
+    @inject(Tokens.Cache.SessionCache) private readonly sessionCache: SessionCache,
+    @inject(Tokens.Cache.UserCache) private readonly userCache: UserCache,
   ) {
     super(db);
   }
@@ -46,5 +50,9 @@ export class ChangePasswordService extends BaseService {
       await trx('users').where('id', userId).update({ passwordHash });
       await trx('sessions').where('userId', userId).whereNot('id', sessionId).del();
     });
+
+    await this.sessionCache.removeAllSessionsForUser(userId);
+    await this.sessionCache.addSession(userId, sessionId);
+    await this.userCache.invalidateUser(userId, user.email);
   }
 }

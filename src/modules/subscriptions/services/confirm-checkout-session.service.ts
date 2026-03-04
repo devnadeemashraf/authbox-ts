@@ -6,6 +6,7 @@ import { env } from '@/config/env';
 import { TIER_BY_ID } from '@/core/config/tiers.config';
 import { Tokens } from '@/core/di/tokens';
 import { BadRequestError, ForbiddenError, ServiceUnavailableError } from '@/core/errors';
+import type { UserCache } from '@/infrastructure/cache/user-cache';
 
 const PREMIUM_TIER_ID =
   Number(Object.entries(TIER_BY_ID).find(([, t]) => t.name === 'premium')?.[0]) || 2;
@@ -22,7 +23,10 @@ const PREMIUM_TIER_ID =
 export class ConfirmCheckoutSessionService {
   private stripe: Stripe | null = null;
 
-  constructor(@inject(Tokens.Infrastructure.Database) private readonly db: Knex) {
+  constructor(
+    @inject(Tokens.Infrastructure.Database) private readonly db: Knex,
+    @inject(Tokens.Cache.UserCache) private readonly userCache: UserCache,
+  ) {
     if (env.STRIPE_SECRET_KEY) {
       this.stripe = new Stripe(env.STRIPE_SECRET_KEY);
     }
@@ -128,6 +132,8 @@ export class ConfirmCheckoutSessionService {
         await trx('users').where('id', userId).update({ tierId: PREMIUM_TIER_ID });
       }
     });
+
+    if (isActive) await this.userCache.invalidateUser(userId);
 
     return { success: true };
   }

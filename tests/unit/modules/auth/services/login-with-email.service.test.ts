@@ -21,6 +21,15 @@ describe('LoginWithEmailService', () => {
     enforceSessionLimit: jest.fn().mockResolvedValue(undefined),
   };
 
+  const mockSessionCache = {
+    addSession: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const mockUserCache = {
+    getByEmail: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+  };
+
   let service: LoginWithEmailService;
   const mockDb = createMockDb();
 
@@ -30,6 +39,8 @@ describe('LoginWithEmailService', () => {
       mockDb,
       mockUserRepo as never,
       mockSessionRepo as never,
+      mockSessionCache as never,
+      mockUserCache as never,
       mockPasswordHasher as never,
       mockTierEnforcement as never,
     );

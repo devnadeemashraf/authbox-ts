@@ -20,6 +20,10 @@ describe('RegisterWithEmailService', () => {
     execute: jest.fn().mockResolvedValue(undefined),
   };
 
+  const mockUserCache = {
+    set: jest.fn().mockResolvedValue(undefined),
+  };
+
   let service: RegisterWithEmailService;
   const mockDb = createMockDb();
 
@@ -28,6 +32,7 @@ describe('RegisterWithEmailService', () => {
     service = new RegisterWithEmailService(
       mockDb,
       mockUserRepo as never,
+      mockUserCache as never,
       mockPasswordHasher as never,
       mockQueueWelcomeEmail as never,
     );

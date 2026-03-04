@@ -23,6 +23,15 @@ describe('ChangePasswordService', () => {
     hash: jest.fn().mockResolvedValue('$argon2id$newhash'),
   };
 
+  const mockSessionCache = {
+    removeAllSessionsForUser: jest.fn().mockResolvedValue(undefined),
+    addSession: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const mockUserCache = {
+    invalidateUser: jest.fn().mockResolvedValue(undefined),
+  };
+
   const mockTrx = createMockTrx();
   const mockDb = {
     transaction: jest.fn((cb: (trx: ReturnType<typeof createMockTrx>) => Promise<void>) =>
@@ -38,6 +47,8 @@ describe('ChangePasswordService', () => {
       mockDb as never,
       mockUserRepo as never,
       mockPasswordHasher as never,
+      mockSessionCache as never,
+      mockUserCache as never,
     );
   });
 

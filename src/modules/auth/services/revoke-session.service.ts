@@ -4,14 +4,17 @@ import type { SessionRepository } from '../repositories/session.repository';
 
 import { Tokens } from '@/core/di/tokens';
 import { ForbiddenError, NotFoundError } from '@/core/errors/client-errors';
+import type { SessionCache } from '@/infrastructure/cache/session-cache';
 
 /**
  * Revokes a single session. User can only revoke their own sessions.
+ * Invalidates session cache on revoke.
  */
 @injectable()
 export class RevokeSessionService {
   constructor(
     @inject(Tokens.Auth.SessionRepository) private readonly sessionRepo: SessionRepository,
+    @inject(Tokens.Cache.SessionCache) private readonly sessionCache: SessionCache,
   ) {}
 
   async execute(userId: string, sessionId: string): Promise<void> {
@@ -24,5 +27,6 @@ export class RevokeSessionService {
     }
 
     await this.sessionRepo.delete(sessionId);
+    await this.sessionCache.removeSession(userId, sessionId);
   }
 }

@@ -15,6 +15,7 @@ import { BadRequestError, UnauthorizedError } from '@/core/errors/client-errors'
 import type { User } from '@/core/interfaces/user.types';
 import { signAccessToken, signRefreshToken } from '@/core/security/jwt';
 import { createOAuthState, verifyOAuthState } from '@/core/security/oauth-state';
+import type { SessionCache } from '@/infrastructure/cache/session-cache';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 export interface OAuthInitiateResult {
@@ -40,6 +41,7 @@ export class OAuthService extends BaseService {
     private readonly providerRegistry: OAuthProviderRegistry,
     @inject(Tokens.Auth.TierEnforcementService)
     private readonly tierEnforcement: TierEnforcementService,
+    @inject(Tokens.Cache.SessionCache) private readonly sessionCache: SessionCache,
   ) {
     super(db);
   }
@@ -174,6 +176,8 @@ export class OAuthService extends BaseService {
       ipAddress: options?.ipAddress ?? null,
       expiresAt,
     });
+
+    await this.sessionCache.addSession(user.id, sessionId);
 
     const accessToken = signAccessToken({
       sub: user.id,

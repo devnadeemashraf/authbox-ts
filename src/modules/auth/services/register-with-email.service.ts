@@ -12,6 +12,7 @@ import { ConflictError } from '@/core/errors/client-errors';
 import type { User } from '@/core/interfaces/user.types';
 import type { PasswordHasher } from '@/core/security/password-hasher';
 import { Permissions } from '@/core/security/permissions';
+import type { UserCache } from '@/infrastructure/cache/user-cache';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const DEFAULT_TIER_ID = 1; // free tier id in database
@@ -22,6 +23,7 @@ export class RegisterWithEmailService extends BaseService {
   constructor(
     @inject(Tokens.Infrastructure.Database) db: Knex,
     @inject(Tokens.Users.UserRepository) private readonly userRepo: UserRepository,
+    @inject(Tokens.Cache.UserCache) private readonly userCache: UserCache,
     @inject(Tokens.Security.PasswordHasher) private readonly passwordHasher: PasswordHasher,
     @inject(Tokens.Auth.QueueWelcomeEmailService)
     private readonly queueWelcomeEmail: QueueWelcomeEmailService,
@@ -46,6 +48,7 @@ export class RegisterWithEmailService extends BaseService {
       tierId: DEFAULT_TIER_ID,
     });
 
+    await this.userCache.set(user);
     await this.queueWelcomeEmail.execute(user.email);
 
     return { user };

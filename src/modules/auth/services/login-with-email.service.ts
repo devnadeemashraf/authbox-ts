@@ -13,6 +13,8 @@ import { UnauthorizedError } from '@/core/errors/client-errors';
 import type { User } from '@/core/interfaces/user.types';
 import { signAccessToken, signRefreshToken } from '@/core/security/jwt';
 import type { PasswordHasher } from '@/core/security/password-hasher';
+import type { SessionCache } from '@/infrastructure/cache/session-cache';
+import type { UserCache } from '@/infrastructure/cache/user-cache';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const INVALID_CREDENTIALS = 'Invalid email or password';
@@ -28,6 +30,8 @@ export class LoginWithEmailService extends BaseService {
     @inject(Tokens.Infrastructure.Database) db: Knex,
     @inject(Tokens.Users.UserRepository) private readonly userRepo: UserRepository,
     @inject(Tokens.Auth.SessionRepository) private readonly sessionRepo: SessionRepository,
+    @inject(Tokens.Cache.SessionCache) private readonly sessionCache: SessionCache,
+    @inject(Tokens.Cache.UserCache) private readonly userCache: UserCache,
     @inject(Tokens.Security.PasswordHasher) private readonly passwordHasher: PasswordHasher,
     @inject(Tokens.Auth.TierEnforcementService)
     private readonly tierEnforcement: TierEnforcementService,
@@ -39,7 +43,11 @@ export class LoginWithEmailService extends BaseService {
     input: LoginInput,
     options?: { deviceInfo?: string; ipAddress?: string },
   ): Promise<LoginResult> {
-    const user = await this.userRepo.findByEmail(input.email);
+    let user = await this.userCache.getByEmail(input.email);
+    if (!user) {
+      user = await this.userRepo.findByEmail(input.email);
+      if (user) await this.userCache.set(user);
+    }
     if (!user) {
       throw new UnauthorizedError({ message: INVALID_CREDENTIALS });
     }
@@ -65,6 +73,8 @@ export class LoginWithEmailService extends BaseService {
       ipAddress: options?.ipAddress ?? null,
       expiresAt,
     });
+
+    await this.sessionCache.addSession(user.id, sessionId);
 
     const accessToken = signAccessToken({
       sub: user.id,

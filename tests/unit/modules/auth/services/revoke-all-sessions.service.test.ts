@@ -5,11 +5,15 @@ describe('RevokeAllSessionsService', () => {
     deleteByUserId: jest.fn().mockResolvedValue(3),
   };
 
+  const mockSessionCache = {
+    removeAllSessionsForUser: jest.fn().mockResolvedValue(undefined),
+  };
+
   let service: RevokeAllSessionsService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new RevokeAllSessionsService(mockSessionRepo as never);
+    service = new RevokeAllSessionsService(mockSessionRepo as never, mockSessionCache as never);
   });
 
   it('calls deleteByUserId with user id', async () => {
