@@ -11,11 +11,17 @@ export const TIER_DEFINITIONS: ReadonlyArray<{
 }> = [
   {
     name: 'free',
-    features: { auth: { maxSessions: 1 } },
+    features: {
+      auth: { maxSessions: 1 },
+      rateLimit: { requestsPerMinute: 100 },
+    },
   },
   {
     name: 'premium',
-    features: { auth: { maxSessions: 3 } },
+    features: {
+      auth: { maxSessions: 3 },
+      rateLimit: { requestsPerMinute: 250 },
+    },
   },
 ] as const;
 

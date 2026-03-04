@@ -1,9 +1,12 @@
 export type TierName = 'free' | 'premium';
 
 export interface TierFeatures {
-  // allow for dynamic additions without breaking the type (good to begin with)
   auth: {
     maxSessions: number;
+  };
+  /** Requests per minute for general API (tier-based rate limiting). */
+  rateLimit: {
+    requestsPerMinute: number;
   };
   [key: string]: unknown;
 }

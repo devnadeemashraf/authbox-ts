@@ -1,6 +1,12 @@
 import express, { type Express } from 'express';
 
-import { globalErrorHandler, requestIdMiddleware } from '@/core/middlewares';
+import {
+  authGuard,
+  globalErrorHandler,
+  requestIdMiddleware,
+  securityMiddleware,
+  tierRateLimiter,
+} from '@/core/middlewares';
 import { notFound, ok } from '@/core/response';
 import { mountDocs } from '@/infrastructure/docs/docs.routes';
 import { authRouter } from '@/modules/auth/routes/auth.routes';
@@ -11,8 +17,8 @@ import { userRouter } from '@/modules/users/routes/user.routes';
 export function createApp(): Express {
   const app = express();
 
-  // --- Trust proxy (from env.TRUST_PROXY) - required when behind NGINX/Traefik
-  // TODO: app.set('trust proxy', env.TRUST_PROXY ? 1 : 0);
+  // --- Trust proxy, Helmet (security headers), CORS (dev/prod aware)
+  securityMiddleware(app);
 
   // --- Request ID (traceability for errors)
   app.use(requestIdMiddleware);
@@ -23,9 +29,6 @@ export function createApp(): Express {
   // --- Body parsing
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
-  // --- CORS (configure allowed origins from env.FRONTEND_URL)
-  // TODO: app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
 
   // --- Request logging (e.g. pino-http)
   // TODO: app.use(pinoHttp({ ... }));
@@ -42,8 +45,8 @@ export function createApp(): Express {
 
   // --- API v1 routes
   app.use('/api/v1/auth', authRouter);
-  app.use('/api/v1/users', userRouter);
-  app.use('/api/v1/subscriptions', subscriptionRouter);
+  app.use('/api/v1/users', authGuard, tierRateLimiter, userRouter);
+  app.use('/api/v1/subscriptions', authGuard, tierRateLimiter, subscriptionRouter);
 
   // --- 404 handler (use error format for consistency)
   app.use((_req, res) => notFound(res, res.locals?.requestId));
