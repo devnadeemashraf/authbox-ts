@@ -28,6 +28,11 @@ export const env = cleanEnv(process.env, {
     desc: 'When true, primary process spawns job workers alongside HTTP',
   }),
 
+  EMAIL_DELIVERY_ENABLED: bool({
+    default: false,
+    desc: 'When true, API can handle sending Emails (NOTE: This also affects the routes that rely on sending Emails for their functionality)',
+  }),
+
   // Logging
   LOG_LEVEL: str({
     choices: ['fatal', 'error', 'warn', 'info', 'debug', 'trace'],

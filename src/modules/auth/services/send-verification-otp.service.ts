@@ -10,15 +10,15 @@ import { Tokens } from '@/core/di/tokens';
 import { ConflictError } from '@/core/errors/client-errors';
 import { logger } from '@/core/logger';
 import type { PasswordHasher } from '@/core/security/password-hasher';
+import { addEmailJobIfEnabled } from '@/infrastructure/queue/email-job-gate';
 import type { EmailVerificationJobPayload } from '@/infrastructure/queue/job-payloads';
-import { getQueue } from '@/infrastructure/queue/queue.registry';
 import { QUEUE_NAMES } from '@/infrastructure/queue/queue-names';
 import { getResendCooldownTtl, setResendCooldown } from '@/infrastructure/queue/redis.client';
 import type { UserRepository } from '@/modules/users/repositories/user.repository';
 
 const OTP_LENGTH = 6;
 const OTP_EXPIRY_HOURS = 24;
-const RESEND_COOLDOWN_SECONDS = 60;
+const RESEND_COOLDOWN_SECONDS = 120;
 
 export interface SendVerificationOtpResult {
   sent: boolean;
@@ -65,8 +65,7 @@ export class SendVerificationOtpService extends BaseService {
     });
 
     try {
-      const queue = getQueue(QUEUE_NAMES.EMAIL_VERIFICATION);
-      await queue.add('send-otp', {
+      await addEmailJobIfEnabled(QUEUE_NAMES.EMAIL_VERIFICATION, 'send-otp', {
         userId,
         email: user.email,
         otp,

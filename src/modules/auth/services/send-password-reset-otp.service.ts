@@ -10,8 +10,8 @@ import { Tokens } from '@/core/di/tokens';
 import { ConflictError } from '@/core/errors/client-errors';
 import { logger } from '@/core/logger';
 import type { PasswordHasher } from '@/core/security/password-hasher';
+import { addEmailJobIfEnabled } from '@/infrastructure/queue/email-job-gate';
 import type { PasswordResetJobPayload } from '@/infrastructure/queue/job-payloads';
-import { getQueue } from '@/infrastructure/queue/queue.registry';
 import { QUEUE_NAMES } from '@/infrastructure/queue/queue-names';
 import {
   getPasswordResetCooldownTtl,
@@ -71,8 +71,7 @@ export class SendPasswordResetOtpService extends BaseService {
     });
 
     try {
-      const queue = getQueue(QUEUE_NAMES.PASSWORD_RESET);
-      await queue.add('send-otp', {
+      await addEmailJobIfEnabled(QUEUE_NAMES.PASSWORD_RESET, 'send-otp', {
         userId: user.id,
         email: user.email,
         otp,
