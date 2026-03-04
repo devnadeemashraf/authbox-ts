@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { passwordSchema } from '@/modules/auth/schemas/auth.schemas';
+
 /** Username: 3–30 chars, alphanumeric + underscore. Unique (checked in service). */
 export const usernameSchema = z
   .string()
@@ -29,3 +31,10 @@ export const avatarConfirmSchema = z.object({
   objectKey: z.string().min(1, 'objectKey required'),
 });
 export type AvatarConfirmInput = z.infer<typeof avatarConfirmSchema>;
+
+/** Change password: requires current password; new password must meet policy. */
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: passwordSchema,
+});
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

@@ -48,4 +48,13 @@ export class SessionRepository extends BaseRepository<Session> {
   async deleteByUserId(userId: string): Promise<number> {
     return this.db(this.tableName).where('userId', userId).del();
   }
+
+  /** Deletes all sessions for a user except the given session (e.g. keep current session). */
+  async deleteByUserIdExceptSession(userId: string, exceptSessionId: string): Promise<number> {
+    const deleted = await this.db(this.tableName)
+      .where('userId', userId)
+      .whereNot('id', exceptSessionId)
+      .del();
+    return deleted;
+  }
 }

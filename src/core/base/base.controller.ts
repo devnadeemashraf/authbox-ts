@@ -43,4 +43,18 @@ export class BaseController {
     }
     return user.id;
   }
+
+  /**
+   * Extracts the current session ID (JWT jti) from the request.
+   * Must be used only after authGuard middleware has run.
+   *
+   * @throws UnauthorizedError when req.user is missing
+   */
+  protected getSessionId(req: Request): string {
+    const user = (req as AuthenticatedRequest).user;
+    if (!user?.jti) {
+      throw new UnauthorizedError({ message: 'Authentication required' });
+    }
+    return user.jti;
+  }
 }

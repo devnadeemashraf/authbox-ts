@@ -6,6 +6,7 @@ export const UsersTokens = {
   UserRepository: Symbol('authbox.users.UserRepository'),
   GetMeService: Symbol('authbox.users.GetMeService'),
   UpdateMeService: Symbol('authbox.users.UpdateMeService'),
+  ChangePasswordService: Symbol('authbox.users.ChangePasswordService'),
   AvatarUploadUrlService: Symbol('authbox.users.AvatarUploadUrlService'),
   AvatarConfirmService: Symbol('authbox.users.AvatarConfirmService'),
   AvatarDeleteService: Symbol('authbox.users.AvatarDeleteService'),

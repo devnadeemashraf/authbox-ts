@@ -4,12 +4,14 @@ import { inject, injectable } from 'tsyringe';
 import {
   avatarConfirmSchema,
   avatarUploadUrlSchema,
+  changePasswordSchema,
   updateMeSchema,
 } from '../schemas/user.schemas';
 import type { AvatarConfirmService } from '../services/avatar-confirm.service';
 import type { AvatarDeleteService } from '../services/avatar-delete.service';
 import type { AvatarReadUrlService } from '../services/avatar-read-url.service';
 import type { AvatarUploadUrlService } from '../services/avatar-upload-url.service';
+import type { ChangePasswordService } from '../services/change-password.service';
 import type { GetMeService } from '../services/get-me.service';
 import type { UpdateMeService } from '../services/update-me.service';
 
@@ -23,6 +25,8 @@ import { validateWithZod } from '@/core/validation';
 export class UserController extends BaseController {
   constructor(
     @inject(Tokens.Users.GetMeService) private readonly getMeService: GetMeService,
+    @inject(Tokens.Users.ChangePasswordService)
+    private readonly changePasswordService: ChangePasswordService,
     @inject(Tokens.Users.UpdateMeService) private readonly updateMeService: UpdateMeService,
     @inject(Tokens.Users.AvatarUploadUrlService)
     private readonly avatarUploadUrlService: AvatarUploadUrlService,
@@ -47,6 +51,14 @@ export class UserController extends BaseController {
     const input = validateWithZod(updateMeSchema, req.body);
     const user = await this.updateMeService.execute(userId, input);
     ok(res, toUserResponseDto(user));
+  });
+
+  changePassword = this.asyncHandler(async (req: Request, res: Response) => {
+    const userId = this.getUserId(req);
+    const sessionId = this.getSessionId(req);
+    const input = validateWithZod(changePasswordSchema, req.body);
+    await this.changePasswordService.execute(userId, sessionId, input);
+    noContent(res);
   });
 
   getAvatarUploadUrl = this.asyncHandler(async (req: Request, res: Response) => {

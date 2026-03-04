@@ -48,8 +48,8 @@ export const verifyOtpSchema = z.object({
 
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
 
-/** Shared password policy: min 12 chars, 1 upper, 1 lower, 1 number, 1 special */
-const passwordSchema = z
+/** Shared password policy: min 12 chars, 1 upper, 1 lower, 1 number, 1 special. Exported for reuse (e.g. change password). */
+export const passwordSchema = z
   .string()
   .min(12, 'Password must be at least 12 characters')
   .max(128, 'Password must be at most 128 characters')

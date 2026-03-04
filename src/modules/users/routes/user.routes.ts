@@ -10,6 +10,7 @@ const userController = container.resolve(UserController);
 
 userRouter.get('/me', authGuard, userController.getMe);
 userRouter.patch('/me', authGuard, userController.patchMe);
+userRouter.patch('/me/password', authGuard, userController.changePassword);
 
 userRouter.post(
   '/me/avatar/upload-url',
