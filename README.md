@@ -1,4 +1,4 @@
-# Authbox TS
+# Authbox TS [ALPHA]
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
@@ -163,21 +163,21 @@ pnpm worker
 
 ### Scripts
 
-| Command                    | Description             |
-| -------------------------- | ----------------------- |
-| `pnpm dev`                 | Dev server (tsx watch)  |
-| `pnpm worker`              | BullMQ workers          |
-| `pnpm build`               | Production build        |
-| `pnpm start`               | Run production build    |
-| `pnpm db:migrate`          | Run migrations          |
-| `pnpm db:migrate:rollback` | Rollback last migration |
-| `pnpm db:seed`             | Run seeds               |
-| `pnpm type-check`          | TypeScript check        |
-| `pnpm lint`                | ESLint                  |
-| `pnpm test`                | Jest (all tests)        |
+| Command                    | Description               |
+| -------------------------- | ------------------------- |
+| `pnpm dev`                 | Dev server (tsx watch)    |
+| `pnpm worker`              | BullMQ workers            |
+| `pnpm build`               | Production build          |
+| `pnpm start`               | Run production build      |
+| `pnpm db:migrate`          | Run migrations            |
+| `pnpm db:migrate:rollback` | Rollback last migration   |
+| `pnpm db:seed`             | Run seeds                 |
+| `pnpm type-check`          | TypeScript check          |
+| `pnpm lint`                | ESLint                    |
+| `pnpm test`                | Jest (all tests)          |
 | `pnpm test:coverage`       | Jest with coverage report |
-| `pnpm test:unit`           | Unit tests only         |
-| `pnpm test:integration`    | Integration tests only  |
+| `pnpm test:unit`           | Unit tests only           |
+| `pnpm test:integration`    | Integration tests only    |
 
 ### Testing
 
